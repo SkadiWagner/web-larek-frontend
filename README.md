@@ -45,6 +45,9 @@ yarn build
 
 ## Типы данных
 ```ts
+/*
+* Интерфейс для данных о продукте
+*  */
 interface Product {
     title: string;
     description: string;
@@ -54,6 +57,9 @@ interface Product {
     id: string;
 }
 
+/*
+* Интерфейс для данных о заказе
+*  */
 interface Order {
     productIds: string[];
     paymentMethod: PaymentMethod;
@@ -63,21 +69,33 @@ interface Order {
     total: number;
 }
 
+/*
+* Интерфейс для данных из корзины
+*  */
 interface BasketData {
 	totalPrice: number;
 	orderIds: string[];
 }
 
+/*
+* Интерфейс для данных о способе оплаты и доставки
+*  */
 interface OrderOptions {
 	paymentMethod: "Онлайн" | "При получении";
 	address: string;
 }
 
+/*
+* Интерфейс для данных контакта с покупателем
+*  */
 interface OrderContacts {
 	email: string;
 	phone: string;
 }
 
+`/*
+* Интерфейс для работы с корзиной
+*  */`
 interface Basket {
 	Delete(id: string) :void;
 	Add(id: Product) :void;
@@ -212,5 +230,22 @@ class CardComponent extends Component<Product> {
 	}
 }
 
+```
 
+# Дополнительные интерфейсы
+```ts
+/*
+* Интерфейс для репозитория продуктов
+*  */
+interface ProductRepository {
+    GetProducts() :Promise <Product[]>;
+    GetById(id: string) :Promise<Product>;
+}
+
+/*
+* Интерфейс для репозитория заказов
+*  */
+interface OrderRepository {
+    Add(order: Order) :string
+}
 ```
