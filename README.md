@@ -43,17 +43,19 @@ yarn build
 
 ## Документация
 
-## Модули
-
 ```TypeScript 
 
 // Определение категорий товаров
 type TCategory = "софт-скилл" | "другое" | "дополнительное" | "кнопка" | "хард-скилл";
 
 // Определение вариантов оплаты
-type TPayment = "онлайн" | "при получении";
+type TPayment = "онлайн" | "при получении"; 
 
-// MODEL
+```
+
+## Model
+
+```TypeScript
 
 // Сущность продукта
 interface IProductItem {
@@ -96,7 +98,12 @@ interface ICart {
     updateProductQuantity(productId: string, quantity: number): void;
 }
 
-// View
+```
+
+
+## View
+
+```TypeScript
 
 // Абстрактный компонент
 abstract class IComponent<T> {
@@ -163,7 +170,11 @@ interface IPageView {
     cartCounter: HTMLElement;
 }
 
-// Presenter 
+```
+
+## Presenter 
+
+```TypeScript
 
 // Сущность ответа при создании заказа
 interface ICreatedOrderResponse {
@@ -184,4 +195,6 @@ interface IEvents {
     emit<T>(event: string, data?: T): void;
     trigger<T>(event: string, context?: Partial<T>): (data: T) => void;
 }
+
+```
 
