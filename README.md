@@ -41,92 +41,65 @@ npm run build
 yarn build
 ```
 
-# Документация
+## Документация
 
-## Типы данных
-```ts
-/*
-* Интерфейс для данных о продукте
-*  */
-interface Product {
-    title: string;
-    description: string;
-    imageLink: string;
-    price?: number;
-    type: ProductType;
+## Модули
+
+```TypeScript 
+
+// Определение категорий товаров
+type TCategory = "софт-скилл" | "другое" | "дополнительное" | "кнопка" | "хард-скилл";
+
+// Определение вариантов оплаты
+type TPayment = "онлайн" | "при получении";
+
+// MODEL
+
+// Сущность продукта
+interface IProductItem {
     id: string;
+    description: string;
+    image: string;
+    title: string;
+    category: TCategory;
+    price: number;
 }
 
-/*
-* Интерфейс для данных о заказе
-*  */
-interface Order {
-    productIds: string[];
-    paymentMethod: PaymentMethod;
-    destinationAddress: string;
+// Сущность списка продуктов
+interface IProductList {
+    items: IProductItem[];
+}
+
+// Сущность заказа
+interface iOrder {
+    payment: TPayment;
     email: string;
-    phoneNumber: string;
+    phone: string;
+    address: string;
     total: number;
+    items: string[];
 }
 
-/*
-* Интерфейс для данных из корзины
-*  */
-interface BasketData {
-	totalPrice: number;
-	orderIds: string[];
+// Интерфейс товара в корзине
+interface ICartItem {
+    product: IProductItem;
+    quantity: number;
 }
 
-/*
-* Интерфейс для данных о способе оплаты и доставки
-*  */
-interface OrderOptions {
-	paymentMethod: "Онлайн" | "При получении";
-	address: string;
+// интерфейс корзины
+
+interface ICart {
+    items: ICartItem[];
+    totalPrice: number;
+
+    addProduct(product: IProductItem, quantity?: number): void;
+    updateProductQuantity(productId: string, quantity: number): void;
 }
 
-/*
-* Интерфейс для данных контакта с покупателем
-*  */
-interface OrderContacts {
-	email: string;
-	phone: string;
-}
+// View
 
-`/*
-* Интерфейс для работы с корзиной
-*  */`
-interface Basket {
-	Delete(id: string) :void;
-	Add(id: Product) :void;
-	Clear() :void;
-	List() :Product[];
-	GetTotalCount() : number;
-	GetTotalPrice() : number;
-}
-```
-# Представление
-```ts
-/*
-* Интерфейс для страницы корзины
-*  */
-interface BasketView {
-    list: HTMLUListElement;
-    totalPrice: HTMLSpanElement;
-}
-
-/*
-* Интерфейс для страницы с продуктами
-*  */
-interface ProductsView {
-    list: HTMLUListElement;
-    basketCounter: HTMLSpanElement;
-}
-
-/*
-* Абстрактный компонент
-*  */
-abstract class Component<T> {
+// Абстрактный компонент
+abstract class IComponent<T> {
     protected abstract Hide(element: HTMLElement): void;
     protected abstract Show(element: HTMLElement): void;
     protected abstract SetText(element: HTMLElement, value: string): void;
@@ -135,117 +108,80 @@ abstract class Component<T> {
     abstract Render(data?: Partial<T>): HTMLElement;
   }
 
-/*
-* Компонент для рендера карточки товара
-*  */
-class ProductsComponent extends Component<ProductsView> {
-	protected Hide(element: HTMLElement): void {
-		throw new Error("Method not implemented.");
-	}
-	protected Show(element: HTMLElement): void {
-		throw new Error("Method not implemented.");
-	}
-	protected SetText(element: HTMLElement, value: string): void {
-		throw new Error("Method not implemented.");
-	}
-	SwitchEnableState(element: HTMLElement, state: boolean): void {
-		throw new Error("Method not implemented.");
-	}
-	protected SetImage(el: HTMLImageElement, src: string, alt?: string): void {
-		throw new Error("Method not implemented.");
-	}
-	Render(data?: Partial<Page>): HTMLElement {
-		throw new Error("Method not implemented.");
-	}
+// Интерфейс модального окна
+interface IModalView extends IComponent<IModelViewContent> {
+    openModal(): void;
+    closeModal(): void;
 }
 
-/*
-* Компонент для рендера корзины
-*  */
-class BasketComponent extends Component<Basket> {
-	protected Hide(element: HTMLElement): void {
-		throw new Error("Method not implemented.");
-	}
-	protected Show(element: HTMLElement): void {
-		throw new Error("Method not implemented.");
-	}
-	protected SetText(element: HTMLElement, value: string): void {
-		throw new Error("Method not implemented.");
-	}
-	SwitchEnableState(element: HTMLElement, state: boolean): void {
-		throw new Error("Method not implemented.");
-	}
-	protected SetImage(el: HTMLImageElement, src: string, alt?: string): void {
-		throw new Error("Method not implemented.");
-	}
-	Render(data?: Partial<Basket>): HTMLElement {
-		throw new Error("Method not implemented.");
-	}
+// Интерфейс контента модального окна
+interface IModelViewContent{
+    content: HTMLElement;
 }
 
-/*
-* Компонент для рендера заказа
-*  */
-class OrderComponent extends Component<Order> {
-	protected Hide(element: HTMLElement): void {
-		throw new Error("Method not implemented.");
-	}
-	protected Show(element: HTMLElement): void {
-		throw new Error("Method not implemented.");
-	}
-	protected SetText(element: HTMLElement, value: string): void {
-		throw new Error("Method not implemented.");
-	}
-	SwitchEnableState(element: HTMLElement, state: boolean): void {
-		throw new Error("Method not implemented.");
-	}
-	protected SetImage(el: HTMLImageElement, src: string, alt?: string): void {
-		throw new Error("Method not implemented.");
-	}
-	Render(data?: Partial<Order>): HTMLElement {
-		throw new Error("Method not implemented.");
-	}
-}
-/*
-* Компонент для рендера карточки товара
-*  */
-class CardComponent extends Component<Product> {
-	protected Hide(element: HTMLElement): void {
-		throw new Error("Method not implemented.");
-	}
-	protected Show(element: HTMLElement): void {
-		throw new Error("Method not implemented.");
-	}
-	protected SetText(element: HTMLElement, value: string): void {
-		throw new Error("Method not implemented.");
-	}
-	SwitchEnableState(element: HTMLElement, state: boolean): void {
-		throw new Error("Method not implemented.");
-	}
-	protected SetImage(el: HTMLImageElement, src: string, alt?: string): void {
-		throw new Error("Method not implemented.");
-	}
-	Render(data?: Partial<Product>): HTMLElement {
-		throw new Error("Method not implemented.");
-	}
+// Интерфейс представления товара
+interface IProductItemView{
+    description: HTMLElement; 
+    image: HTMLImageElement; 
+    title: HTMLElement; 
+    category: HTMLElement; 
+    price: HTMLElement; 
+    addButton?: HTMLButtonElement; 
 }
 
-```
-
-# Дополнительные интерфейсы
-```ts
-/*
-* Интерфейс для репозитория продуктов
-*  */
-interface ProductRepository {
-    GetProducts() :Promise <Product[]>;
-    GetById(id: string) :Promise<Product>;
+// Интерфейс представления корзины
+interface ICartView extends IModalView {
+    productItemList: HTMLElement[];
+    totalPrice: HTMLElement;
 }
 
-/*
-* Интерфейс для репозитория заказов
-*  */
-interface OrderRepository {
-    Add(order: Order) :string
+// Интерфейс формы
+interface IForm<T> extends IComponent<T> {
+    isValid: boolean;
 }
-```
+
+// Данные формы доставки
+interface IDeliveryFormData {
+    paymentMethod: TPayment;
+    address: string;
+}
+
+// Данные формы контактов
+interface IContactsFormData {
+    email: string;
+    telephonenumber: string;
+}
+
+// Представление завершенного заказа
+interface ICompletedOrder {
+    totalPrice: HTMLElement;
+}
+
+// Интерфейс представления страницы
+interface IPageView {
+    cardList: HTMLElement[];
+    cartCounter: HTMLElement;
+}
+
+// Presenter 
+
+// Сущность ответа при создании заказа
+interface ICreatedOrderResponse {
+    id: string;
+    total: number;
+}
+
+// Интерфейс для работы с API
+interface IApiClient {
+    getProducts(): Promise<IProductItem[]>;
+    getProduct(id: string): Promise<IProductItem>;
+    createOrder(order: iOrder): Promise<ICreatedOrderResponse>;
+}
+
+// Интерфейс событий
+interface IEvents {
+    on<T>(event: string, callback: (data: T) => void): void;
+    emit<T>(event: string, data?: T): void;
+    trigger<T>(event: string, context?: Partial<T>): (data: T) => void;
+}
+

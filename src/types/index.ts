@@ -50,11 +50,14 @@ interface ICart {
 // View
 
 // Абстрактный компонент
-interface IComponent<T> {
-    disabled(elem: T): void;
-    toggleClass(className: string): void;
-    render(elem: T): HTMLElement;
-}
+abstract class IComponent<T> {
+    protected abstract Hide(element: HTMLElement): void;
+    protected abstract Show(element: HTMLElement): void;
+    protected abstract SetText(element: HTMLElement, value: string): void;
+    abstract SwitchEnableState(element: HTMLElement, state: boolean): void;
+    protected abstract SetImage(el: HTMLImageElement, src: string, alt?: string): void;
+    abstract Render(data?: Partial<T>): HTMLElement;
+  }
 
 // Интерфейс модального окна
 interface IModalView extends IComponent<IModelViewContent> {
@@ -63,12 +66,12 @@ interface IModalView extends IComponent<IModelViewContent> {
 }
 
 // Интерфейс контента модального окна
-interface IModelViewContent {
+interface IModelViewContent{
     content: HTMLElement;
 }
 
 // Интерфейс представления товара
-interface IProductItemView {
+interface IProductItemView{
     description: HTMLElement; 
     image: HTMLImageElement; 
     title: HTMLElement; 
