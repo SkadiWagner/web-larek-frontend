@@ -1,55 +1,49 @@
-// Определение категорий товаров
-type TCategory = "софт-скилл" | "другое" | "дополнительное" | "кнопка" | "хард-скилл";
-
-// Определение вариантов оплаты
-type TPayment = "онлайн" | "при получении";
-
 // MODEL
 
 // Сущность продукта
 interface IProductItem {
-    id: string;
-    description: string;
-    image: string;
-    title: string;
-    category: TCategory;
-    price: number;
+    id: string; // id 
+    description: string; // описание 
+    image: string; // изображение 
+    title: string; // название
+    category: TCategory; // категория
+    price: number; // цена
 }
 
 // Сущность списка продуктов
 interface IProductList {
-    items: IProductItem[];
+    items: IProductItem[]; // массив продуктов
 }
 
 // Сущность заказа
-interface iOrder {
-    payment: TPayment;
-    email: string;
-    phone: string;
-    address: string;
-    total: number;
-    items: string[];
+interface IOrder {
+    payment: TPayment; // способ оплаты
+    email: string; // контактная почта
+    phone: string; // контактный телефон
+    address: string; // адресс доставки 
+    total: number; // итоговая стоимость
+    items: string[]; // товары в корзине
 }
 
-// Интерфейс товара в корзине
+// Сущность товара в корзине
 interface ICartItem {
-    product: IProductItem;
-    quantity: number;
+    product: IProductItem; // продукт в корзине
+    quantity: number; // кол-во продукта
 }
 
-// интерфейс корзины
-
+// Сущность корзины
 interface ICart {
-    items: ICartItem[];
-    totalPrice: number;
+    items: ICartItem[]; // массив товаров в корзине
+    totalPrice: number; // итоговая стоимость
 
-    addProduct(product: IProductItem, quantity?: number): void;
-    updateProductQuantity(productId: string, quantity: number): void;
+    addProduct(product: IProductItem): void; // метод добавления товаров в корзину
+    updateProductQuantity(productId: string, quantity: number): void; // метод обновления кол-ва товара в корзине
 }
 
 // View
 
 // Абстрактный компонент
+
 abstract class IComponent<T> {
     protected abstract Hide(element: HTMLElement): void;
     protected abstract Show(element: HTMLElement): void;
@@ -59,67 +53,69 @@ abstract class IComponent<T> {
     abstract Render(data?: Partial<T>): HTMLElement;
   }
 
-// Интерфейс модального окна
-interface IModalView extends IComponent<IModelViewContent> {
-    openModal(): void;
-    closeModal(): void;
+
+ // Главная страничка
+interface IPageView {
+	cartCounter: number;
+	productList: HTMLElement[];
+} 
+
+// Продукт
+interface ICardView {
+	title: HTMLHeadingElement;
+	price: HTMLSpanElement;
+	category?: HTMLSpanElement;
+	button?: HTMLButtonElement;
+    description?: HTMLParagraphElement;
+    image?: HTMLImageElement;
 }
 
-// Интерфейс контента модального окна
-interface IModelViewContent{
+// Корзина
+interface ICartView {
+	productList: HTMLElement[];
+	totalPrice: number;
+}
+
+// Форма
+interface IFormView {
+	isValid: boolean;
+}
+
+// Модальное окно
+interface IModalView extends IComponent<IModalContent> {
+	open(): void;
+    close(): void;
+}
+
+// контент модального окна
+interface IModalContent {
     content: HTMLElement;
 }
 
-// Интерфейс представления товара
-interface IProductItemView{
-    description: HTMLElement; 
-    image: HTMLImageElement; 
-    title: HTMLElement; 
-    category: HTMLElement; 
-    price: HTMLElement; 
-    addButton?: HTMLButtonElement; 
+// Модальное окно с методом оплаты и адресом 
+interface IFormDeliveryView {
+	payment: string;
+	address: string;
 }
 
-// Интерфейс представления корзины
-interface ICartView extends IModalView {
-    productItemList: HTMLElement[];
-    totalPrice: HTMLElement;
+// Модальное окно с контактными данными
+interface IFormContactsView {
+	email: string;
+	phone: string;
 }
 
-// Интерфейс формы
-interface IForm<T> extends IComponent<T> {
-    isValid: boolean;
-}
-
-// Данные формы доставки
-interface IDeliveryFormData {
-    paymentMethod: TPayment;
-    address: string;
-}
-
-// Данные формы контактов
-interface IContactsFormData {
-    email: string;
-    telephonenumber: string;
-}
-
-// Представление завершенного заказа
-interface ICompletedOrder {
-    totalPrice: HTMLElement;
-}
-
-// Интерфейс представления страницы
-interface IPageView {
-    cardList: HTMLElement[];
-    cartCounter: HTMLElement;
+// Модальное окно с успешным оформлением заказа
+interface ISuccessfulOrderView {
+	totalAmount: number;
 }
 
 // Presenter 
 
-// Сущность ответа при создании заказа
-interface ICreatedOrderResponse {
-    id: string;
-    total: number;
+// Презентер  событий
+interface IEvents {
+    on<T>(event: string, callback: (data: T) => void): void;
+    emit<T>(event: string, data?: T): void;
+    trigger<T>(event: string, context?: Partial<T>): (data: T) => void;
 }
 
 // Интерфейс для работы с API
@@ -127,11 +123,4 @@ interface IApiClient {
     getProducts(): Promise<IProductItem[]>;
     getProduct(id: string): Promise<IProductItem>;
     createOrder(order: iOrder): Promise<ICreatedOrderResponse>;
-}
-
-// Интерфейс событий
-interface IEvents {
-    on<T>(event: string, callback: (data: T) => void): void;
-    emit<T>(event: string, data?: T): void;
-    trigger<T>(event: string, context?: Partial<T>): (data: T) => void;
 }
