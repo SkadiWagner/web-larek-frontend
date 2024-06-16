@@ -25,11 +25,7 @@ interface IOrder {
     items: string[]; // товары в корзине
 }
 
-// Сущность товара в корзине
-interface ICartItem {
-    product: IProductItem; // продукт в корзине
-    quantity: number; // кол-во продукта
-}
+
 
 // Сущность корзины
 interface ICart {
@@ -37,21 +33,22 @@ interface ICart {
     totalPrice: number; // итоговая стоимость
 
     addProduct(product: IProductItem): void; // метод добавления товаров в корзину
-    updateProductQuantity(productId: string, quantity: number): void; // метод обновления кол-ва товара в корзине
+    removeProduct(productId: string): void // метод удаления товара
 }
 
 // View
 
 // Абстрактный компонент
 
-abstract class IComponent<T> {
-    protected abstract Hide(element: HTMLElement): void;
-    protected abstract Show(element: HTMLElement): void;
-    protected abstract SetText(element: HTMLElement, value: string): void;
-    abstract SwitchEnableState(element: HTMLElement, state: boolean): void;
-    protected abstract SetImage(el: HTMLImageElement, src: string, alt?: string): void;
-    abstract Render(data?: Partial<T>): HTMLElement;
+interface IComponent<T> {
+    hide(element: HTMLElement): void; // Скрывает указанный элемент интерфейса.
+    show(element: HTMLElement): void; // Отображает указанный элемент интерфейса.
+    setText(element: HTMLElement, value: string): void; //  Устанавливает текстовое содержимое элемента.
+    switchEnableState(element: HTMLElement, state: boolean): void; // Изменяет доступность элемента. 
+    setImage(el: HTMLImageElement, src: string, alt?: string): void;  // Устанавливает изображение элементу.
+    render(data?: Partial<T>): HTMLElement; // Абстрактный метод для отрисовки компонента на основе данных типа T.
   }
+
 
 
  // Главная страничка

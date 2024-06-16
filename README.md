@@ -11,7 +11,7 @@
 - src/pages/index.html — HTML-файл главной страницы
 - src/types/index.ts — файл с типами
 - src/index.ts — точка входа приложения
-- src/styles/styles.scss — корневой файл стилей
+- src/scss/styles.scss — корневой файл стилей
 - src/utils/constants.ts — файл с константами
 - src/utils/utils.ts — файл с утилитами
 
@@ -59,7 +59,7 @@ type TPayment = "онлайн" | "при получении";
 
 ```TypeScript 
 
-// Сущность продукта
+// Сущность продукта ProductItem, содержит в себе данные конкретного товара(ID, описание товара, изображение, название, категорию, стоимость). Имплементирует интерфейс IProductItem. 
 interface IProductItem {
     id: string; // id 
     description: string; // описание 
@@ -69,12 +69,12 @@ interface IProductItem {
     price: number; // цена
 }
 
-// Сущность списка продуктов
+// Сущность ProductList списка продуктов, содержит в себе массив продуктов. Имплементирует интерфейс IProductList. 
 interface IProductList {
     items: IProductItem[]; // массив продуктов
 }
 
-// Сущность заказа
+// Сущность заказа Order, хранит в себе такие данные как ( способ оплаты, контактная почта, телефон, адресс ). Имплементирует интерфейс IOrder. 
 interface IOrder {
     payment: TPayment; // способ оплаты
     email: string; // контактная почта
@@ -82,89 +82,87 @@ interface IOrder {
     address: string; // адресс доставки 
     total: number; // итоговая стоимость
     items: string[]; // товары в корзине
+
 }
 
-// Сущность товара в корзине
-interface ICartItem {
-    product: IProductItem; // продукт в корзине
-    quantity: number; // кол-во продукта
-}
-
-// Сущность корзины
+// Сущность корзины Cart, содержит массив товаров добавленных в корзину, а также итоговую стоимость. Имеет 2 метода(добавление/удаление товара). Имплементирует интерфейс ICart.
 interface ICart {
-    items: ICartItem[]; // массив товаров в корзине
+    items: IProductItem[]; // массив товаров в корзине
     totalPrice: number; // итоговая стоимость
 
-    addProduct(product: IProductItem): void; // метод добавления товаров в корзину
-    updateProductQuantity(productId: string, quantity: number): void; // метод обновления кол-ва товара в корзине
+    addProduct(productId: string): void; // метод добавления товаров в корзину
+	removeProduct(productId: string): void // метод удаления товара
+	createOrder(): void 
 }
 ```
 
 ## Слой View
 ```TypeScript 
-// Абстрактный компонент
 
-abstract class IComponent<T> {
-    protected abstract Hide(element: HTMLElement): void; // Скрывает указанный элемент интерфейса.
-    protected abstract Show(element: HTMLElement): void; // Отображает указанный элемент интерфейса.
-    protected abstract SetText(element: HTMLElement, value: string): void; //  Устанавливает текстовое содержимое элемента.
-    abstract SwitchEnableState(element: HTMLElement, state: boolean): void; // Изменяет доступность элемента. 
-    protected abstract SetImage(el: HTMLImageElement, src: string, alt?: string): void;  // Устанавливает изображение элементу.
-    abstract Render(data?: Partial<T>): HTMLElement; // Абстрактный метод для отрисовки компонента на основе данных типа T.
+// Абстрактный компонент, позволяющий разбить интерфейс на независимые части, с которыми можно по отдельности работать и переиспользовать. 
+// T - это дженерик-тип, представляющий собой DTO для отображения данных компонента.
+abstract interface IComponent<T> {
+    hide(element: HTMLElement): void; // Скрывает указанный элемент интерфейса.
+    show(element: HTMLElement): void; // Отображает указанный элемент интерфейса.
+    setText(element: HTMLElement, value: string): void; //  Устанавливает текстовое содержимое элемента.
+    switchEnableState(element: HTMLElement, state: boolean): void; // Изменяет доступность элемента. 
+    setImage(el: HTMLImageElement, src: string, alt?: string): void;  // Устанавливает изображение элементу.
+    render(data?: Partial<T>): HTMLElement; // Абстрактный метод для отрисовки компонента на основе данных типа T.
   }
 
 
- // Главная страничка
+ // Класс PageView Главная страница с каталогом товаров, содержит счетчик товаров в корзине, а также список всех товаров.  Имплементирует интерфейс IPageView.
 interface IPageView {
 	cartCounter: number; // Счетчик товаров в корзине
 	productList: HTMLElement[]; // Список продуктов на странице
 } 
 
-// Продукт
+// Класс CardView Компонент карточки продукта, содержит опциональные поля. Используется в различных компонентах (корзине, галереии, в каталоге на главной странице). Имплементирует интерфейс ICardView.
 interface ICardView {
 	title: HTMLHeadingElement; // Заголовок продукта
 	price: HTMLSpanElement; // Цена продукта 
+	button: HTMLButtonElement; // Кнопка
 	category?: HTMLSpanElement; // Категория продукта (необязательно)
-	button?: HTMLButtonElement; // Кнопка (необязательно)
     description?: HTMLParagraphElement; // Описание продукта (необязательно)
     image?: HTMLImageElement; // Изображение продукта (необязательно)
 }
 
-// Корзина
+// Класс CartView Компонент корзины, содержащий список продуктов, добавленных в корзину, а также итоговую стоимость. Имеется кнопка для перехода к оформлению заказа. Имплементирует интерфейс ICartView.
 interface ICartView {
 	productList: HTMLElement[]; // Список продуктов в корзине
 	totalPrice: number; // Итоговая стоимость корзины
 } 
 
-// Форма
-interface IFormView {
-	isValid: boolean; // проверка валидности формы
-}
-
-// Модальное окно
+// Класс ModalView Компонент модального окна, имеет 2 метода Открытие и Закрытие. В качестве дженерика принимает контент для отображения. Имплементирует интерфейс IModalView.
 interface IModalView extends IComponent<IModalContent> {
 	open(): void; // метод открытия модального окна
     close(): void; // метод закрытия модального окна
 }
 
-// контент модального окна
+// Класс ModalContent содержит контент для модального окна. Имплементирует интерфейс IModalContent.
 interface IModalContent {
     content: HTMLElement; // Содержимое модального окна
 }
 
-// Модальное окно с методом оплаты и адресом 
+// Класс IFormView универсальногого компонента формы. С ее помощью можно будет настроить валидацию всех форм в проекте. Имплементирует интерфейс IFormView.
+interface IFormView {
+	isValid: boolean; // проверка валидности формы
+}
+
+// Класс FormDeliveryView Валидируемой формы, которая содержит 2 обязательных поля: способ оплаты и адресс. Имплементирует интерфейс IFormDeliveryView.
 interface IFormDeliveryView {
 	payment: TPayment; // Метод оплаты
 	address: string; // Адрес доставки
 }
 
-// Модальное окно с контактными данными
+// Класс FormContactsView Валидируемой формы, которая содержит 2 обязательных поля: контактная почта и номер телефона. Имплементирует интерфейс IFormContactsView.
 interface IFormContactsView {
 	email: string; // Email адрес
 	phone: string; // Контактный телефон
 }
 
-// Модальное окно с успешным оформлением заказа
+// Класс SuccessfulOrderView модального окна с информацией о успешном оформлении заказа. Отображает списанную сумму. При закрытии данного модального окна происходит очистка корзины. 
+// Имплементирует интерфейс ISuccessfulOrderView.
 interface ISuccessfulOrderView {
 	totalAmount: number; // Итоговая сумма заказа
 }
@@ -173,14 +171,14 @@ interface ISuccessfulOrderView {
 ## Слой Presenter 
 
 ```TypeScript 
-// Презентер  событий
+// Класс Events помогает раболтать с такиим событями как: подписка на событие, отправление данных, генерациях новых событий с  контекстом. Имплементирует интерфейс IEvents.
 interface IEvents {
     on<T>(event: string, callback: (data: T) => void): void; // Подписаться на событие
     emit<T>(event: string, data?: T): void; // Отправить событие с данными
     trigger<T>(event: string, context?: Partial<T>): (data: T) => void; // Сгенерировать событие с контекстом
 }
 
-// Интерфейс для работы с API
+// Класс ApiClient для работы с апи, позволяет получить список продуктов, продукт по ID, создать сущносость заказа. Имплементирует интерфейс IApiClient.
 interface IApiClient {
     getProducts(): Promise<IProductItem[]>; // Получить список продуктов
     getProduct(id: string): Promise<IProductItem>; // Получить информацию о продукте по его идентификатору
@@ -190,6 +188,8 @@ interface IApiClient {
 
 ## Архитектура проекта
 Проект "Веб-ларек" следует архитектурному паттерну MVP (Model View Presenter), который включает несколько ключевых компонентов для обеспечения модульности, переиспользуемости и легкости сопровождения.
+Взаимодействия внутри приложения происходят через события. Модели инициализируют события, слушатели событий в основном коде выполняют передачу данных компонентам отображения, а также вычислениями между этой передачей, и еще они меняют значения в моделях.
+ 
 
 ### Основные части проекта:
 ### 1. Слой Model:
