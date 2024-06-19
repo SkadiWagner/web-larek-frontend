@@ -55,6 +55,39 @@ type TPayment = "онлайн" | "при получении";
 
 ```
 
+## Базовые классы
+
+### 1. Класс API
+
+Класс Api служит для управления взаимодействием с API посредством HTTP-запросов. Он упрощает выполнение основных операций, таких как отправка запросов и обработка ответов, благодаря обобщенным методам и настройкам.
+
+#### Свойства
+
+__baseUrl__: строка, представляющая базовый URL для всех API-запросов. Это начальная точка для формирования URI запросов.
+__options__: объект с параметрами, определяющими настройки запроса по умолчанию. Включает заголовки и другие параметры, необходимые для выполнения запросов.
+
+#### Методы
+
+##### get(uri: string): Promise<any>
+Метод отправляет HTTP GET-запрос на указанный uri, который добавляется к baseUrl. Возвращает Promise, который разрешается с данными ответа, обработанными внутренним методом handleResponse.
+
+###### Параметры:
+__uri:__ относительный путь, добавляемый к baseUrl, чтобы сформировать полный URL для GET-запроса.
+
+#### post(uri: string, data: object, method: ApiPostMethods = 'POST'): Promise<any>
+Метод отправляет HTTP-запрос с методом POST, PUT или DELETE на указанный uri, включая данные data в теле запроса. Возвращает Promise, который разрешается с данными ответа, обработанными внутренним методом handleResponse.
+
+###### Параметры:
+__uri__: относительный путь для построения полного URL запроса.
+__data__: объект, содержащий данные, отправляемые в теле запроса.
+__method__: строка, определяющая HTTP-метод (по умолчанию 'POST').
+
+##### protected handleResponse(response: Response): Promise<any>
+Защищенный метод, который обрабатывает ответ от API. Возвращает Promise, который разрешается с JSON-данными, если запрос успешен, или отклоняется в случае ошибки.
+
+###### Параметры:
+__response__: объект Response, полученный от выполнения HTTP-запроса.
+
 ## Слой Model
 
 ```TypeScript 
@@ -101,14 +134,59 @@ interface ICart {
 
 // Абстрактный компонент, позволяющий разбить интерфейс на независимые части, с которыми можно по отдельности работать и переиспользовать. 
 // T - это дженерик-тип, представляющий собой DTO для отображения данных компонента.
-abstract interface IComponent<T> {
-    hide(element: HTMLElement): void; // Скрывает указанный элемент интерфейса.
-    show(element: HTMLElement): void; // Отображает указанный элемент интерфейса.
-    setText(element: HTMLElement, value: string): void; //  Устанавливает текстовое содержимое элемента.
-    switchEnableState(element: HTMLElement, state: boolean): void; // Изменяет доступность элемента. 
-    setImage(el: HTMLImageElement, src: string, alt?: string): void;  // Устанавливает изображение элементу.
-    render(data?: Partial<T>): HTMLElement; // Абстрактный метод для отрисовки компонента на основе данных типа T.
-  }
+export abstract class Component<T> {
+    protected constructor(protected readonly container: HTMLElement) {
+        // Учитывайте что код в конструкторе исполняется ДО всех объявлений в дочернем классе
+    }
+
+    // Инструментарий для работы с DOM в дочерних компонентах
+
+    // Переключить класс
+    toggleClass(element: HTMLElement, className: string, force?: boolean) {
+        element.classList.toggle(className, force);
+    }
+
+    // Установить текстовое содержимое
+    protected setText(element: HTMLElement, value: unknown) {
+        if (element) {
+            element.textContent = String(value);
+        }
+    }
+
+    // Сменить статус блокировки
+    setDisabled(element: HTMLElement, state: boolean) {
+        if (element) {
+            if (state) element.setAttribute('disabled', 'disabled');
+            else element.removeAttribute('disabled');
+        }
+    }
+
+    // Скрыть
+    protected setHidden(element: HTMLElement) {
+        element.style.display = 'none';
+    }
+
+    // Показать
+    protected setVisible(element: HTMLElement) {
+        element.style.removeProperty('display');
+    }
+
+    // Установить изображение с алтернативным текстом
+    protected setImage(element: HTMLImageElement, src: string, alt?: string) {
+        if (element) {
+            element.src = src;
+            if (alt) {
+                element.alt = alt;
+            }
+        }
+    }
+
+    // Вернуть корневой DOM-элемент
+    render(data?: Partial<T>): HTMLElement {
+        Object.assign(this as object, data ?? {});
+        return this.container;
+    }
+}
 
 
  // Класс PageView Главная страница с каталогом товаров, содержит счетчик товаров в корзине, а также список всех товаров.  Имплементирует интерфейс IPageView.
@@ -134,7 +212,7 @@ interface ICartView {
 } 
 
 // Класс ModalView Компонент модального окна, имеет 2 метода Открытие и Закрытие. В качестве дженерика принимает контент для отображения. Имплементирует интерфейс IModalView.
-interface IModalView extends IComponent<IModalContent> {
+interface IModalView extends Component<IModalContent> {
 	open(): void; // метод открытия модального окна
     close(): void; // метод закрытия модального окна
 }
@@ -172,10 +250,81 @@ interface ISuccessfulOrderView {
 
 ```TypeScript 
 // Класс Events помогает раболтать с такиим событями как: подписка на событие, отправление данных, генерациях новых событий с  контекстом. Имплементирует интерфейс IEvents.
-interface IEvents {
-    on<T>(event: string, callback: (data: T) => void): void; // Подписаться на событие
-    emit<T>(event: string, data?: T): void; // Отправить событие с данными
-    trigger<T>(event: string, context?: Partial<T>): (data: T) => void; // Сгенерировать событие с контекстом
+export interface IEvents {
+    on<T extends object>(event: EventName, callback: (data: T) => void): void;
+    emit<T extends object>(event: string, data?: T): void;
+    trigger<T extends object>(event: string, context?: Partial<T>): (data: T) => void;
+}
+
+export class EventEmitter implements IEvents {
+    _events: Map<EventName, Set<Subscriber>>;
+
+    constructor() {
+        this._events = new Map<EventName, Set<Subscriber>>();
+    }
+
+    /**
+     * Установить обработчик на событие
+     */
+    on<T extends object>(eventName: EventName, callback: (event: T) => void) {
+        if (!this._events.has(eventName)) {
+            this._events.set(eventName, new Set<Subscriber>());
+        }
+        this._events.get(eventName)?.add(callback);
+    }
+
+    /**
+     * Снять обработчик с события
+     */
+    off(eventName: EventName, callback: Subscriber) {
+        if (this._events.has(eventName)) {
+            this._events.get(eventName)!.delete(callback);
+            if (this._events.get(eventName)?.size === 0) {
+                this._events.delete(eventName);
+            }
+        }
+    }
+
+    /**
+     * Инициировать событие с данными
+     */
+    emit<T extends object>(eventName: string, data?: T) {
+        this._events.forEach((subscribers, name) => {
+            if (name === '*') subscribers.forEach(callback => callback({
+                eventName,
+                data
+            }));
+            if (name instanceof RegExp && name.test(eventName) || name === eventName) {
+                subscribers.forEach(callback => callback(data));
+            }
+        });
+    }
+
+    /**
+     * Слушать все события
+     */
+    onAll(callback: (event: EmitterEvent) => void) {
+        this.on("*", callback);
+    }
+
+    /**
+     * Сбросить все обработчики
+     */
+    offAll() {
+        this._events = new Map<string, Set<Subscriber>>();
+    }
+
+    /**
+     * Сделать коллбек триггер, генерирующий событие при вызове
+     */
+    trigger<T extends object>(eventName: string, context?: Partial<T>) {
+        return (event: object = {}) => {
+            this.emit(eventName, {
+                ...(event || {}),
+                ...(context || {})
+            });
+        };
+    }
 }
 
 // Класс ApiClient для работы с апи, позволяет получить список продуктов, продукт по ID, создать сущносость заказа. Имплементирует интерфейс IApiClient.
