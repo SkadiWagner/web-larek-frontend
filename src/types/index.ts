@@ -1,7 +1,12 @@
-// MODEL
 
-// Сущность продукта
-interface IProductItem {
+// Тип с категориями товаров.
+export type TCategory = "софт-скилл" | "другое" | "дополнительное" | "кнопка" | "хард-скилл";
+
+// Тип с методами оплаты.
+export type TPayment = "онлайн" | "при получении"; 
+
+// Сущность продукта ProductItem, содержит в себе данные конкретного товара(ID, описание товара, изображение, название, категорию, стоимость). Имплементирует интерфейс IProductItem. 
+export interface IProductItem {
     id: string; // id 
     description: string; // описание 
     image: string; // изображение 
@@ -10,13 +15,13 @@ interface IProductItem {
     price: number; // цена
 }
 
-// Сущность списка продуктов
-interface IProductList {
+// Сущность ProductList списка продуктов, содержит в себе массив продуктов. Имплементирует интерфейс IProductList. 
+export interface IProductList {
     items: IProductItem[]; // массив продуктов
 }
 
-// Сущность заказа
-interface IOrder {
+// Сущность заказа Order, хранит в себе такие данные как ( способ оплаты, контактная почта, телефон, адресс ). Имплементирует интерфейс IOrder. 
+export interface IOrder {
     payment: TPayment; // способ оплаты
     email: string; // контактная почта
     phone: string; // контактный телефон
@@ -25,99 +30,221 @@ interface IOrder {
     items: string[]; // товары в корзине
 }
 
+// Сущность – Заказ
+export interface IOrderEntity {
+	id: string[]; // Выдается сервером
+	total: number; // Сумма заказа
+}
 
+export interface IAction {
+	onClick(event: MouseEvent): void;
+}
 
-// Сущность корзины
-interface ICart {
-    items: ICartItem[]; // массив товаров в корзине
+// Сущность корзины Cart, содержит массив товаров добавленных в корзину, а также итоговую стоимость. Имеет 2 метода(добавление/удаление товара). Имплементирует интерфейс ICart.
+export interface ICart {
+    items: IProductItem[]; // массив товаров в корзине
     totalPrice: number; // итоговая стоимость
 
-    addProduct(product: IProductItem): void; // метод добавления товаров в корзину
-    removeProduct(productId: string): void // метод удаления товара
+    addProduct(productId: string): void; // метод добавления товаров в корзину
+	removeProduct(productId: string): void // метод удаления товара
+	createOrder(): void 
 }
 
-// View
+// Абстрактный компонент, позволяющий разбить интерфейс на независимые части, с которыми можно по отдельности работать и переиспользовать. 
+// T - это дженерик-тип, представляющий собой DTO для отображения данных компонента.
+export abstract class Component<T> {
+    protected constructor(protected readonly container: HTMLElement) {
+    }
 
-// Абстрактный компонент
+    // Инструментарий для работы с DOM в дочерних компонентах
 
-interface IComponent<T> {
-    hide(element: HTMLElement): void; // Скрывает указанный элемент интерфейса.
-    show(element: HTMLElement): void; // Отображает указанный элемент интерфейса.
-    setText(element: HTMLElement, value: string): void; //  Устанавливает текстовое содержимое элемента.
-    switchEnableState(element: HTMLElement, state: boolean): void; // Изменяет доступность элемента. 
-    setImage(el: HTMLImageElement, src: string, alt?: string): void;  // Устанавливает изображение элементу.
-    render(data?: Partial<T>): HTMLElement; // Абстрактный метод для отрисовки компонента на основе данных типа T.
-  }
+    // Переключить класс
+    toggleClass(element: HTMLElement, className: string, force?: boolean) {
+        element.classList.toggle(className, force);
+    }
+
+    // Установить текстовое содержимое
+    protected setText(element: HTMLElement, value: unknown) {
+        if (element) {
+            element.textContent = String(value);
+        }
+    }
+
+    // Сменить статус блокировки
+    setDisabled(element: HTMLElement, state: boolean) {
+        if (element) {
+            if (state) element.setAttribute('disabled', 'disabled');
+            else element.removeAttribute('disabled');
+        }
+    }
+
+    // Скрыть
+    protected setHidden(element: HTMLElement) {
+        element.style.display = 'none';
+    }
+
+    // Показать
+    protected setVisible(element: HTMLElement) {
+        element.style.removeProperty('display');
+    }
+
+    // Установить изображение с алтернативным текстом
+    protected setImage(element: HTMLImageElement, src: string, alt?: string) {
+        if (element) {
+            element.src = src;
+            if (alt) {
+                element.alt = alt;
+            }
+        }
+    }
+
+    // Вернуть корневой DOM-элемент
+    render(data?: Partial<T>): HTMLElement {
+        Object.assign(this as object, data ?? {});
+        return this.container;
+    }
+}
 
 
-
- // Главная страничка
-interface IPageView {
-	cartCounter: number;
-	productList: HTMLElement[];
+ // Класс PageView Главная страница с каталогом товаров, содержит счетчик товаров в корзине, а также список всех товаров.  Имплементирует интерфейс IPageView.
+export interface IPageView {
+	cartCounter: number; // Счетчик товаров в корзине
+	productList: HTMLElement[]; // Список продуктов на странице
 } 
 
-// Продукт
-interface ICardView {
-	title: HTMLHeadingElement;
-	price: HTMLSpanElement;
-	category?: HTMLSpanElement;
-	button?: HTMLButtonElement;
-    description?: HTMLParagraphElement;
-    image?: HTMLImageElement;
+// Класс CardView Компонент карточки продукта, содержит опциональные поля. Используется в различных компонентах (корзине, галереии, в каталоге на главной странице). Имплементирует интерфейс ICardView.
+export interface ICardView {
+	title: HTMLHeadingElement; // Заголовок продукта
+	price: HTMLSpanElement; // Цена продукта 
+	button: HTMLButtonElement; // Кнопка
+	category?: HTMLSpanElement; // Категория продукта (необязательно)
+    description?: HTMLParagraphElement; // Описание продукта (необязательно)
+    image?: HTMLImageElement; // Изображение продукта (необязательно)
 }
 
-// Корзина
-interface ICartView {
-	productList: HTMLElement[];
-	totalPrice: number;
+// Класс CartView Компонент корзины, содержащий список продуктов, добавленных в корзину, а также итоговую стоимость. Имеется кнопка для перехода к оформлению заказа. Имплементирует интерфейс ICartView.
+export interface ICartView {
+	productList: HTMLElement[]; // Список продуктов в корзине
+	totalPrice: number; // Итоговая стоимость корзины
+} 
+
+// Класс ModalView Компонент модального окна, имеет 2 метода Открытие и Закрытие. В качестве дженерика принимает контент для отображения. Имплементирует интерфейс IModalView.
+export interface IModalView extends Component<IModalContent> {
+	open(): void; // метод открытия модального окна
+    close(): void; // метод закрытия модального окна
 }
 
-// Форма
-interface IFormView {
-	isValid: boolean;
+// Класс ModalContent содержит контент для модального окна. Имплементирует интерфейс IModalContent.
+export interface IModalContent {
+    content: HTMLElement; // Содержимое модального окна
 }
 
-// Модальное окно
-interface IModalView extends IComponent<IModalContent> {
-	open(): void;
-    close(): void;
+// Класс IFormView универсальногого компонента формы. С ее помощью можно будет настроить валидацию всех форм в проекте. Имплементирует интерфейс IFormView.
+export interface IFormView {
+    errors: string[];
+	isValid: boolean; // проверка валидности формы
 }
 
-// контент модального окна
-interface IModalContent {
-    content: HTMLElement;
+// Класс FormDeliveryView Валидируемой формы, которая содержит 2 обязательных поля: способ оплаты и адресс. Имплементирует интерфейс IFormDeliveryView.
+export interface IFormDeliveryView {
+	payment: TPayment; // Метод оплаты
+	address: string; // Адрес доставки
 }
 
-// Модальное окно с методом оплаты и адресом 
-interface IFormDeliveryView {
-	payment: string;
-	address: string;
+// Класс FormContactsView Валидируемой формы, которая содержит 2 обязательных поля: контактная почта и номер телефона. Имплементирует интерфейс IFormContactsView.
+export interface IFormContactsView {
+	email: string; // Email адрес
+	phone: string; // Контактный телефон
 }
 
-// Модальное окно с контактными данными
-interface IFormContactsView {
-	email: string;
-	phone: string;
+// Класс SuccessfulOrderView модального окна с информацией о успешном оформлении заказа. Отображает списанную сумму. При закрытии данного модального окна происходит очистка корзины. 
+// Имплементирует интерфейс ISuccessfulOrderView.
+export interface ISuccessfulOrderView {
+	totalAmount: number; // Итоговая сумма заказа
 }
 
-// Модальное окно с успешным оформлением заказа
-interface ISuccessfulOrderView {
-	totalAmount: number;
-}
 
-// Presenter 
+// // Класс Events помогает раболтать с такиим событями как: подписка на событие, отправление данных, генерациях новых событий с  контекстом. Имплементирует интерфейс IEvents.
+// export interface IEvents {
+//     on<T extends object>(event: EventName, callback: (data: T) => void): void;
+//     emit<T extends object>(event: string, data?: T): void;
+//     trigger<T extends object>(event: string, context?: Partial<T>): (data: T) => void;
+// }
 
-// Презентер  событий
-interface IEvents {
-    on<T>(event: string, callback: (data: T) => void): void;
-    emit<T>(event: string, data?: T): void;
-    trigger<T>(event: string, context?: Partial<T>): (data: T) => void;
-}
+// export class EventEmitter implements IEvents {
+//     _events: Map<EventName, Set<Subscriber>>;
 
-// Интерфейс для работы с API
-interface IApiClient {
-    getProducts(): Promise<IProductItem[]>;
-    getProduct(id: string): Promise<IProductItem>;
-    createOrder(order: iOrder): Promise<ICreatedOrderResponse>;
+//     constructor() {
+//         this._events = new Map<EventName, Set<Subscriber>>();
+//     }
+
+//     /**
+//      * Установить обработчик на событие
+//      */
+//     on<T extends object>(eventName: EventName, callback: (event: T) => void) {
+//         if (!this._events.has(eventName)) {
+//             this._events.set(eventName, new Set<Subscriber>());
+//         }
+//         this._events.get(eventName)?.add(callback);
+//     }
+
+//     /**
+//      * Снять обработчик с события
+//      */
+//     off(eventName: EventName, callback: Subscriber) {
+//         if (this._events.has(eventName)) {
+//             this._events.get(eventName)!.delete(callback);
+//             if (this._events.get(eventName)?.size === 0) {
+//                 this._events.delete(eventName);
+//             }
+//         }
+//     }
+
+//     /**
+//      * Инициировать событие с данными
+//      */
+//     emit<T extends object>(eventName: string, data?: T) {
+//         this._events.forEach((subscribers, name) => {
+//             if (name === '*') subscribers.forEach(callback => callback({
+//                 eventName,
+//                 data
+//             }));
+//             if (name instanceof RegExp && name.test(eventName) || name === eventName) {
+//                 subscribers.forEach(callback => callback(data));
+//             }
+//         });
+//     }
+
+//     /**
+//      * Слушать все события
+//      */
+//     onAll(callback: (event: EmitterEvent) => void) {
+//         this.on("*", callback);
+//     }
+
+//     /**
+//      * Сбросить все обработчики
+//      */
+//     offAll() {
+//         this._events = new Map<string, Set<Subscriber>>();
+//     }
+
+//     /**
+//      * Сделать коллбек триггер, генерирующий событие при вызове
+//      */
+//     trigger<T extends object>(eventName: string, context?: Partial<T>) {
+//         return (event: object = {}) => {
+//             this.emit(eventName, {
+//                 ...(event || {}),
+//                 ...(context || {})
+//             });
+//         };
+//     }
+// }
+
+// Класс ApiClient для работы с апи, позволяет получить список продуктов, продукт по ID, создать сущносость заказа. Имплементирует интерфейс IApiClient.
+export interface IApiClient {
+    getProducts(): Promise<IProductItem[]>; // Получить список продуктов
+    getProduct(id: string): Promise<IProductItem>; // Получить информацию о продукте по его идентификатору
+    createOrder(order: IOrder): Promise<IOrderEntity>; // Создать новый заказ
 }
