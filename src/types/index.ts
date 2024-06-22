@@ -16,7 +16,7 @@ export interface IProductItem {
 }
 
 // Сущность ProductList списка продуктов, содержит в себе массив продуктов. Имплементирует интерфейс IProductList. 
-export interface IProductList {
+export interface IProductListDto {
     items: IProductItem[]; // массив продуктов
 }
 

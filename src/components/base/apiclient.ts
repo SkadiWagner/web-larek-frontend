@@ -1,4 +1,4 @@
-import { IApiClient, IOrder, IOrderEntity, IProductItem } from '../../types/index';
+import { IApiClient, IOrder, IOrderEntity, IProductItem, IProductListDto } from '../../types/index';
 import { Api } from './api'
 
 
@@ -6,19 +6,19 @@ export class ApiClient implements IApiClient {
     api = new Api("https://larek-api.nomoreparties.co/api/weblarek")
 
     async getProducts(): Promise<IProductItem[]> {
-        await this.api
-        .get("/product/")
-        .then(data => data as IProductItem[])
-        .then(data => console.log(data))
-        .then(data => console.log("123123123"))
-        
-        throw new Error('Method not implemented.');
+        const data = await this.api.get("/product/")
+        const productListDto = data as IProductListDto
+        return productListDto.items;
     }
-    getProduct(id: string): Promise<IProductItem> {
-        throw new Error('Method not implemented.');
+    async getProduct(id: string): Promise<IProductItem> {
+        const data = await this.api.get(`/product/${id}`)
+        const product = data as IProductItem
+        return product;
     }
-    createOrder(order: IOrder): Promise<IOrderEntity> {
-        throw new Error('Method not implemented.');
+    async createOrder(order: IOrder): Promise<IOrderEntity> {
+        const data = await this.api.post("/order", order)
+        const orderEntity = data as IOrderEntity
+        return orderEntity;
     }
-    
+
 }
