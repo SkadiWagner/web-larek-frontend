@@ -1,9 +1,10 @@
 import { IApiClient, IOrder, IOrderEntity, IProductItem, IProductListDto } from '../../types/index';
+import { API_URL } from '../../utils/constants';
 import { Api } from './api'
 
 
 export class ApiClient implements IApiClient {
-    api = new Api("https://larek-api.nomoreparties.co/api/weblarek")
+    api = new Api(API_URL)
 
     async getProducts(): Promise<IProductItem[]> {
         const data = await this.api.get("/product/")
