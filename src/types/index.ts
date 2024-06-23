@@ -27,7 +27,7 @@ export interface IOrder {
     phone: string; // контактный телефон
     address: string; // адресс доставки 
     total: number; // итоговая стоимость
-    items: string[]; // товары в корзине
+    items: IProductItem[]; // товары в корзине
 }
 
 // Сущность – Заказ
@@ -40,15 +40,24 @@ export interface IAction {
 	onClick(event: MouseEvent): void;
 }
 
-// Сущность корзины Cart, содержит массив товаров добавленных в корзину, а также итоговую стоимость. Имеет 2 метода(добавление/удаление товара). Имплементирует интерфейс ICart.
-export interface ICart {
-    items: IProductItem[]; // массив товаров в корзине
-    totalPrice: number; // итоговая стоимость
+export interface ICartContent {
+    items: IProductItem[];
+    total: number;
+}
 
-    addProduct(productId: string): void; // метод добавления товаров в корзину
+// Сущность корзины Cart, содержит массив товаров добавленных в корзину, а также итоговую стоимость. Имеет 2 метода(добавление/удаление товара). Имплементирует интерфейс ICart.
+export interface IOrderModel {
+
+    addProduct(product: IProductItem): void; // метод добавления товаров в корзину
 	removeProduct(productId: string): void // метод удаления товара
 	createOrder(): void 
 }
+
+export interface IDataModel {
+    productCards: IProductItem[];
+    selectedProduct: IProductItem;
+    setPreview(item: IProductItem): void;
+  }
 
 // Абстрактный компонент, позволяющий разбить интерфейс на независимые части, с которыми можно по отдельности работать и переиспользовать. 
 // T - это дженерик-тип, представляющий собой DTO для отображения данных компонента.

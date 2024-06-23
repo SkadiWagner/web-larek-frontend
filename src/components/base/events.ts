@@ -31,6 +31,11 @@ export class EventEmitter implements IEvents {
      * Установить обработчик на событие
      */
     on<T extends object>(eventName: EventName, callback: (event: T) => void) {
+        if(eventName === "*") {
+            this._events.forEach((value,key) => {
+                this._events.get(key)?.add(callback)
+            })
+        }
         if (!this._events.has(eventName)) {
             this._events.set(eventName, new Set<Subscriber>());
         }
