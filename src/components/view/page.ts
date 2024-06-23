@@ -3,6 +3,7 @@ import { Component } from '../base/component';
 import { IEvents } from '../base/events';
 import { ensureElement } from '../../utils/utils';
 import { settings } from '../../utils/constants';
+import { CardComponent } from './cardComponent';
 
 
 export class PageComponent extends Component<IPageView> {

@@ -68,6 +68,8 @@ events.on(settings.events.modalOpen, (content: HTMLElement) => {
         const productId = card.dataset.id
         if(orderModel.contains(productId)) {
             modal.setDisabled(content.querySelector('.card__button'), true)
+            const cardComponent = new CardComponent(card, productModel.selectedProduct, events);
+            cardComponent.markAsSelected();
         } else {
             const button = ensureElement<HTMLButtonElement>('.card__button', content)
             button.addEventListener('click', () => {
@@ -94,6 +96,19 @@ events.on(settings.events.cartOpen, (content: HTMLElement) => {
     const renderedComponents = orderModel.items.map((product) =>
       new CardComponent(cloneTemplate(cardBasketTemplate), product, events).render()
     );
+
+    renderedComponents.forEach((component) => {
+        const deleteButton = component.querySelector('.basket__item-delete');
+        const componentId = component.dataset.id 
+        console.log(orderModel.items)
+        if (deleteButton) {
+            deleteButton.addEventListener('click', (item) => {
+                events.on(settings.events.removeProduct, () => {
+                    orderModel.removeProduct(componentId)
+                })    
+            });
+        }
+    });
 
 
     const cart = new CartComponent(cloneTemplate(cartTemplate), events)

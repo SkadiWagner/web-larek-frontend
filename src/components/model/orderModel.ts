@@ -40,13 +40,22 @@ export class OrderModel implements IOrderModel {
         this._totalPrice += product.price
         this.events.emit(settings.events.cartChanged, product)
     }
+
+    // removeProduct(item: IProductItem) {
+    //     const index = this._items.indexOf(item);
+    //     if (index >= 0) {
+    //       this._items.splice(index, 1);
+    //     }
+    //     this.events.emit(settings.events.removeProduct, item)
+    //   }
+
     removeProduct(productId: string): void {
         const index = this._items.findIndex(item => item.id === productId);
         const product = this._items[index]
         this._totalPrice -= product.price
         this._items = this._items.filter(product => product.id !== productId);
-        this.events.emit(settings.events.cartChanged, product)
-        this.events.emit(settings.events.removeProduct, product)
+        this.events.emit(settings.events.cartChanged)
+        this.events.emit(settings.events.removeProduct)
     }
 
     contains(productId: string): boolean {
