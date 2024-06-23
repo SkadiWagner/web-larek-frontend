@@ -56,12 +56,17 @@ export class OrderModel implements IOrderModel {
         this._totalPrice -= product.price
         this._items = this._items.filter(product => product.id !== productId);
         this.events.emit(settings.events.cartChanged, product)
+        this.events.emit(settings.events.removeProduct)
     }
 
     contains(productId: string): boolean {
         const product = this._items.find((item) => item.id === productId);
         return product !== undefined;
     }
+
+    getCounter() {
+        return this._items.length;
+      }
 
     async createOrder(): Promise<IOrderDto> {
        const order : IOrder = {

@@ -55,4 +55,8 @@ export class PageComponent extends Component<IPageView> {
 			this._pageWrapper.classList.remove('page__wrapper_locked');
 		}
 	}
+
+	renderHeaderBasketCounter(value: number) {
+        this._counter.textContent = String(value);
+      }
 }

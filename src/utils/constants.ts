@@ -21,6 +21,8 @@ export const settings = {
         contactsErrorsChanged: "orderContacts:errorsChanged",
         contactsDataChanged: "orderContacts:dataChanged",
         contactsFormSubmitted: "order:contactsSubmitted",
+
+        removeProduct: "remove:product"
     }
 };
 export const paymentMethods = {
