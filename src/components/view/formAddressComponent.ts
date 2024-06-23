@@ -1,13 +1,13 @@
 import { Form } from '../common/form';
-import { FormErrors, IFormView } from '../../types';
+import { FormErrors, IFormAddressContent } from '../../types';
 import { IEvents } from '../base/events';
 import { paymentMethods, settings } from '../../utils/constants';
 
-export class FormAddressComponent extends Form<IFormView>{
+export class FormAddressComponent extends Form{
 	protected _onlineMethodButton: HTMLButtonElement;
 	protected _cashMethodButton: HTMLButtonElement;
 	protected _addressInput: HTMLInputElement;
-	protected _formErrors: FormErrors = {};
+	protected _formErrors: FormErrors<IFormAddressContent> = {};
 	protected _paymentMethod: string;
 	constructor(container: HTMLFormElement, events: IEvents ) {
 		super(container, events);
@@ -19,7 +19,7 @@ export class FormAddressComponent extends Form<IFormView>{
 
 		if (this._onlineMethodButton) {
 			this._onlineMethodButton.addEventListener('click', () => {
-				events.emit(settings.events.orderDeliveryDataChanged, {
+				events.emit(settings.events.addressDataChanged, {
 					field: 'payment',
 					value: paymentMethods.online,
 				});
@@ -28,12 +28,22 @@ export class FormAddressComponent extends Form<IFormView>{
 
 		if (this._cashMethodButton) {
 			this._cashMethodButton.addEventListener('click', () => {
-				events.emit(settings.events.orderDeliveryDataChanged, {
+				events.emit(settings.events.addressDataChanged, {
 					field: 'payment',
 					value: paymentMethods.offline,
 				});
 			});
 		}
+		this._addressInput.addEventListener('input', () => {
+			events.emit(settings.events.addressDataChanged, {
+				field: 'address',
+				value: this.address
+			})
+		})
+		this._submit.addEventListener('click', (evt) => {
+			evt.preventDefault()
+			events.emit(settings.events.addressFormSubmitted)
+		})
 	}
 
 	set address(value: string) {
@@ -72,7 +82,7 @@ export class FormAddressComponent extends Form<IFormView>{
 		}
 
 		this._formErrors = errors;
-		this.events.emit('formErrors:change', this._formErrors);
+		this.events.emit(settings.events.addressErrorsChanged, this._formErrors);
 		return Object.keys(errors).length === 0;
 	}
 

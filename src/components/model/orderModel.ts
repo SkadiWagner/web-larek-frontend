@@ -1,4 +1,12 @@
-import { IOrder, IOrderModel, IProductItem, TCategory } from '../../types';
+import {
+    IApiClient,
+    IFormAddressContent,
+    IFormContactsContent,
+    IOrder, IOrderDto,
+    IOrderModel,
+    IProductItem,
+    TCategory,
+} from '../../types';
 import { settings } from "../../utils/constants";
 import { ensureElement } from "../../utils/utils";
 import { IEvents } from "../base/events";
@@ -10,19 +18,23 @@ export class OrderModel implements IOrderModel {
     protected _items: IProductItem[];
     protected _totalPrice: number;
     protected events: IEvents;
-    order: IOrder
+    protected apiClient: IApiClient;
+    addressData: IFormAddressContent
+    contactsData: IFormContactsContent
+    successOrder: IOrderDto;
 
-    constructor(events: IEvents) {
+    constructor(events: IEvents, apiClient: IApiClient) {
         this._items = []
         this._totalPrice = 0
         this.events = events;
-        this.order = {
-            address: '',
-            email: '',
-            items: [],
-            payment: 'онлайн',
-            phone: '',
-            total: 0
+        this.apiClient = apiClient;
+        this.addressData = {
+            address: null,
+            payment: null
+        }
+        this.contactsData = {
+            email: null,
+            phone: null
         }
     }
     
@@ -33,29 +45,17 @@ export class OrderModel implements IOrderModel {
     get totalPrice() : number {
         return this._totalPrice
     }
-
-    
     addProduct(product: IProductItem): void {
         this._items.push(product)
         this._totalPrice += product.price
         this.events.emit(settings.events.cartChanged, product)
     }
-
-    // removeProduct(item: IProductItem) {
-    //     const index = this._items.indexOf(item);
-    //     if (index >= 0) {
-    //       this._items.splice(index, 1);
-    //     }
-    //     this.events.emit(settings.events.removeProduct, item)
-    //   }
-
     removeProduct(productId: string): void {
         const index = this._items.findIndex(item => item.id === productId);
         const product = this._items[index]
         this._totalPrice -= product.price
         this._items = this._items.filter(product => product.id !== productId);
-        this.events.emit(settings.events.cartChanged)
-        this.events.emit(settings.events.removeProduct)
+        this.events.emit(settings.events.cartChanged, product)
     }
 
     contains(productId: string): boolean {
@@ -63,11 +63,28 @@ export class OrderModel implements IOrderModel {
         return product !== undefined;
     }
 
-    getCounter() {
-        return this._items.length;
-      }
-    createOrder(): void {
-       
+    async createOrder(): Promise<IOrderDto> {
+       const order : IOrder = {
+           phone: this.contactsData.phone,
+           email: this.contactsData.email,
+           payment: this.addressData.payment,
+           address: this.addressData.address,
+           items: this._items.map((value) => value.id),
+           total: this.totalPrice
+       }
+       const orderDto = await this.apiClient.createOrder(order);
+       return orderDto;
     }
-    
+    reset(){
+        this._items = []
+        this._totalPrice = 0
+        this.addressData = {
+            address: null,
+            payment: null
+        }
+        this.contactsData = {
+            email: null,
+            phone: null
+        }
+    }
 }

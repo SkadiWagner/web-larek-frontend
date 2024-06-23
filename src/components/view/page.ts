@@ -3,7 +3,6 @@ import { Component } from '../base/component';
 import { IEvents } from '../base/events';
 import { ensureElement } from '../../utils/utils';
 import { settings } from '../../utils/constants';
-import { CardComponent } from './cardComponent';
 
 
 export class PageComponent extends Component<IPageView> {
@@ -56,9 +55,4 @@ export class PageComponent extends Component<IPageView> {
 			this._pageWrapper.classList.remove('page__wrapper_locked');
 		}
 	}
-
-
-	renderHeaderBasketCounter(value: number) {
-        this._counter.textContent = String(value);
-      }
 }

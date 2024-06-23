@@ -1,6 +1,6 @@
-import { IApiClient, IOrder, IOrderEntity, IProductItem, IProductListDto } from '../../types/index';
+import { IApiClient, IOrder, IOrderDto, IProductItem, IProductListDto } from '../../types/index';
 import { API_URL } from '../../utils/constants';
-import { Api } from './api'
+import { Api } from './api';
 
 
 export class ApiClient implements IApiClient {
@@ -16,10 +16,9 @@ export class ApiClient implements IApiClient {
         const product = data as IProductItem
         return product;
     }
-    async createOrder(order: IOrder): Promise<IOrderEntity> {
+    async createOrder(order: IOrder): Promise<IOrderDto> {
         const data = await this.api.post("/order", order)
-        const orderEntity = data as IOrderEntity
-        return orderEntity;
+        return data as IOrderDto;
     }
 
 }

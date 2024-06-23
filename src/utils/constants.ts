@@ -9,13 +9,18 @@ export const settings = {
         modalOpen: "modal:open",
         modalClose: "modal:close",
         cartChanged: "cart:changed",
-        removeProduct: "product:removed",
         cartOpen: "cart:open",
         orderStarted: "order:started",
-        orderDeliveryDataChanged: "orderDeliveryData:changed",
-        orderAddressSubmitted: "order:addressSubmitted",
-        orderContactsSubmitted: "order:contactsSubmitted",
+        orderPublished: "order:published",
         orderFinished: "order:finished",
+
+        addressErrorsChanged: "orderAddress:errorsChanged",
+        addressDataChanged: "orderAddress:changed",
+        addressFormSubmitted: "order:addressSubmitted",
+
+        contactsErrorsChanged: "orderContacts:errorsChanged",
+        contactsDataChanged: "orderContacts:dataChanged",
+        contactsFormSubmitted: "order:contactsSubmitted",
     }
 };
 export const paymentMethods = {

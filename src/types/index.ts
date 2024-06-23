@@ -5,7 +5,7 @@ export type TCategory = "софт-скилл" | "другое" | "дополни
 // Тип с методами оплаты.
 export type TPayment = "онлайн" | "при получении";
 
-export type FormErrors = Partial<Record<keyof IOrder, string>>;
+export type FormErrors<T> = Partial<Record<keyof T, string>>;
 
 // Сущность продукта ProductItem, содержит в себе данные конкретного товара(ID, описание товара, изображение, название, категорию, стоимость). Имплементирует интерфейс IProductItem. 
 export interface IProductItem {
@@ -29,12 +29,12 @@ export interface IOrder {
     phone: string; // контактный телефон
     address: string; // адресс доставки 
     total: number; // итоговая стоимость
-    items: IProductItem[]; // товары в корзине
+    items: string[]; // товары в корзине
 }
 
 // Сущность – Заказ
-export interface IOrderEntity {
-	id: string[]; // Выдается сервером
+export interface IOrderDto {
+	id: string; // Выдается сервером
 	total: number; // Сумма заказа
 }
 
@@ -50,9 +50,9 @@ export interface ICartContent {
 // Сущность корзины Cart, содержит массив товаров добавленных в корзину, а также итоговую стоимость. Имеет 2 метода(добавление/удаление товара). Имплементирует интерфейс ICart.
 export interface IOrderModel {
 
-    addProduct(product: IProductItem): void; // метод добавления товаров в корзину
+	addProduct(product: IProductItem): void; // метод добавления товаров в корзину
 	removeProduct(productId: string): void // метод удаления товара
-	createOrder(): void 
+	createOrder(): Promise<IOrderDto>
 }
 
 export interface IDataModel {
@@ -151,111 +151,33 @@ export interface IModalContent {
 }
 
 // Класс IFormView универсальногого компонента формы. С ее помощью можно будет настроить валидацию всех форм в проекте. Имплементирует интерфейс IFormView.
-export interface IFormView {
-    errors: string[];
+export interface IFormValidationState {
+    errors: string;
 	isValid: boolean; // проверка валидности формы
 }
 
 // Класс FormDeliveryView Валидируемой формы, которая содержит 2 обязательных поля: способ оплаты и адресс. Имплементирует интерфейс IFormDeliveryContent.
-export interface IFormDeliveryContent {
+export interface IFormAddressContent {
 	payment: TPayment; // Метод оплаты
 	address: string; // Адрес доставки
 }
 
 // Класс FormContactsView Валидируемой формы, которая содержит 2 обязательных поля: контактная почта и номер телефона. Имплементирует интерфейс IFormContactsView.
-export interface IFormContactsView {
+export interface IFormContactsContent {
 	email: string; // Email адрес
 	phone: string; // Контактный телефон
 }
 
 // Класс SuccessfulOrderView модального окна с информацией о успешном оформлении заказа. Отображает списанную сумму. При закрытии данного модального окна происходит очистка корзины. 
 // Имплементирует интерфейс ISuccessfulOrderView.
-export interface ISuccessfulOrderView {
+export interface ISuccessfulOrderContent {
 	totalAmount: number; // Итоговая сумма заказа
 }
 
-
-// // Класс Events помогает раболтать с такиим событями как: подписка на событие, отправление данных, генерациях новых событий с  контекстом. Имплементирует интерфейс IEvents.
-// export interface IEvents {
-//     on<T extends object>(event: EventName, callback: (data: T) => void): void;
-//     emit<T extends object>(event: string, data?: T): void;
-//     trigger<T extends object>(event: string, context?: Partial<T>): (data: T) => void;
-// }
-
-// export class EventEmitter implements IEvents {
-//     _events: Map<EventName, Set<Subscriber>>;
-
-//     constructor() {
-//         this._events = new Map<EventName, Set<Subscriber>>();
-//     }
-
-//     /**
-//      * Установить обработчик на событие
-//      */
-//     on<T extends object>(eventName: EventName, callback: (event: T) => void) {
-//         if (!this._events.has(eventName)) {
-//             this._events.set(eventName, new Set<Subscriber>());
-//         }
-//         this._events.get(eventName)?.add(callback);
-//     }
-
-//     /**
-//      * Снять обработчик с события
-//      */
-//     off(eventName: EventName, callback: Subscriber) {
-//         if (this._events.has(eventName)) {
-//             this._events.get(eventName)!.delete(callback);
-//             if (this._events.get(eventName)?.size === 0) {
-//                 this._events.delete(eventName);
-//             }
-//         }
-//     }
-
-//     /**
-//      * Инициировать событие с данными
-//      */
-//     emit<T extends object>(eventName: string, data?: T) {
-//         this._events.forEach((subscribers, name) => {
-//             if (name === '*') subscribers.forEach(callback => callback({
-//                 eventName,
-//                 data
-//             }));
-//             if (name instanceof RegExp && name.test(eventName) || name === eventName) {
-//                 subscribers.forEach(callback => callback(data));
-//             }
-//         });
-//     }
-
-//     /**
-//      * Слушать все события
-//      */
-//     onAll(callback: (event: EmitterEvent) => void) {
-//         this.on("*", callback);
-//     }
-
-//     /**
-//      * Сбросить все обработчики
-//      */
-//     offAll() {
-//         this._events = new Map<string, Set<Subscriber>>();
-//     }
-
-//     /**
-//      * Сделать коллбек триггер, генерирующий событие при вызове
-//      */
-//     trigger<T extends object>(eventName: string, context?: Partial<T>) {
-//         return (event: object = {}) => {
-//             this.emit(eventName, {
-//                 ...(event || {}),
-//                 ...(context || {})
-//             });
-//         };
-//     }
-// }
 
 // Класс ApiClient для работы с апи, позволяет получить список продуктов, продукт по ID, создать сущносость заказа. Имплементирует интерфейс IApiClient.
 export interface IApiClient {
     getProducts(): Promise<IProductItem[]>; // Получить список продуктов
     getProduct(id: string): Promise<IProductItem>; // Получить информацию о продукте по его идентификатору
-    createOrder(order: IOrder): Promise<IOrderEntity>; // Создать новый заказ
+    createOrder(order: IOrder): Promise<IOrderDto>; // Создать новый заказ
 }
