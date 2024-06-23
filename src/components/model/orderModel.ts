@@ -33,6 +33,8 @@ export class OrderModel implements IOrderModel {
     get totalPrice() : number {
         return this._totalPrice
     }
+
+    
     addProduct(product: IProductItem): void {
         this._items.push(product)
         this._totalPrice += product.price
@@ -44,6 +46,7 @@ export class OrderModel implements IOrderModel {
         this._totalPrice -= product.price
         this._items = this._items.filter(product => product.id !== productId);
         this.events.emit(settings.events.cartChanged, product)
+        this.events.emit(settings.events.removeProduct, product)
     }
 
     contains(productId: string): boolean {
@@ -51,6 +54,9 @@ export class OrderModel implements IOrderModel {
         return product !== undefined;
     }
 
+    getCounter() {
+        return this._items.length;
+      }
     createOrder(): void {
        
     }

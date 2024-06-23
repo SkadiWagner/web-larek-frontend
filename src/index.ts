@@ -27,6 +27,8 @@ const addressFormTemplate = ensureElement<HTMLTemplateElement>('#order');
 const contactsFormTemplate = ensureElement<HTMLTemplateElement>('#contacts');
 const successTemplate = ensureElement<HTMLTemplateElement>('#success');
 
+const cart = new CartComponent(cloneTemplate(cartTemplate), events)
+
 const modalContainer = ensureElement<HTMLElement>('#modal-container')
 
 const page = new PageComponent(document.querySelector('.page'), events);
@@ -69,22 +71,21 @@ events.on(settings.events.modalOpen, (content: HTMLElement) => {
         } else {
             const button = ensureElement<HTMLButtonElement>('.card__button', content)
             button.addEventListener('click', () => {
-                console.log(productModel.selectedProduct)
                 const selectedProduct = productModel.selectedProduct;
                 orderModel.addProduct(selectedProduct);
+                page.renderHeaderBasketCounter(orderModel.getCounter())
                 modal.close();
             }, { once: true})
         }
     }
 })
 
-events.on(settings.events.cartChanged, () =>{
-    // modal.render({cart})
-})
+// events.on('basketList:changed', (items: IProductItem[]) => {
+// 	page.counter = Object.keys(items).length;
+// });
 
 
 events.on(settings.events.selectedProductChanged, (product: IProductItem) => {
-    console.log(product)
     const card = new CardComponent(cloneTemplate(cardPreviewTemplate), product, events)
     modal.render({content: card.render()})
 })
@@ -93,6 +94,8 @@ events.on(settings.events.cartOpen, (content: HTMLElement) => {
     const renderedComponents = orderModel.items.map((product) =>
       new CardComponent(cloneTemplate(cardBasketTemplate), product, events).render()
     );
+
+
     const cart = new CartComponent(cloneTemplate(cartTemplate), events)
     cart.cardList = renderedComponents;
     cart.totalPrice = orderModel.totalPrice;
@@ -108,7 +111,7 @@ events.on(settings.events.orderStarted, () => {
           }
         )
     });
-    validate.
+    formAddressComponent.validate
 })
 
 events.on(settings.events.orderDeliveryDataChanged, (data: {field: keyof IFormDeliveryContent; value: string}) => {
