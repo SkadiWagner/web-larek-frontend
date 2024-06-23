@@ -8,7 +8,16 @@ export const settings = {
         selectedProductChanged: 'selectedProduct:changed',
         modalOpen: "modal:open",
         modalClose: "modal:close",
-        addedToCart: "selectedProduct:addedToCard",
+        cartChanged: "cart:changed",
         cartOpen: "cart:open",
+        orderStarted: "order:started",
+        orderDeliveryDataChanged: "orderDeliveryData:changed",
+        orderAddressSubmitted: "order:addressSubmitted",
+        orderContactsSubmitted: "order:contactsSubmitted",
+        orderFinished: "order:finished",
     }
 };
+export const paymentMethods = {
+    online: 'card',
+    offline: 'cash'
+}

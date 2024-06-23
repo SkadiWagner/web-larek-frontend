@@ -3,7 +3,9 @@
 export type TCategory = "софт-скилл" | "другое" | "дополнительное" | "кнопка" | "хард-скилл";
 
 // Тип с методами оплаты.
-export type TPayment = "онлайн" | "при получении"; 
+export type TPayment = "онлайн" | "при получении";
+
+export type FormErrors = Partial<Record<keyof IOrder, string>>;
 
 // Сущность продукта ProductItem, содержит в себе данные конкретного товара(ID, описание товара, изображение, название, категорию, стоимость). Имплементирует интерфейс IProductItem. 
 export interface IProductItem {
@@ -154,8 +156,8 @@ export interface IFormView {
 	isValid: boolean; // проверка валидности формы
 }
 
-// Класс FormDeliveryView Валидируемой формы, которая содержит 2 обязательных поля: способ оплаты и адресс. Имплементирует интерфейс IFormDeliveryView.
-export interface IFormDeliveryView {
+// Класс FormDeliveryView Валидируемой формы, которая содержит 2 обязательных поля: способ оплаты и адресс. Имплементирует интерфейс IFormDeliveryContent.
+export interface IFormDeliveryContent {
 	payment: TPayment; // Метод оплаты
 	address: string; // Адрес доставки
 }

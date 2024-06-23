@@ -1,4 +1,4 @@
-import { IOrderModel, IProductItem, TCategory } from "../../types";
+import { IOrder, IOrderModel, IProductItem, TCategory } from '../../types';
 import { settings } from "../../utils/constants";
 import { ensureElement } from "../../utils/utils";
 import { IEvents } from "../base/events";
@@ -7,37 +7,47 @@ import { IEvents } from "../base/events";
 
 
 export class OrderModel implements IOrderModel {
-    protected items: IProductItem[];
-    protected totalPrice: number;
-    events: IEvents;
+    protected _items: IProductItem[];
+    protected _totalPrice: number;
+    protected events: IEvents;
+    order: IOrder
 
-
-    constructor() {
-        this.items = [{
-            id: '854cef69-976d-4c2a-a18c-2aa45046c390', // id 
-    description: 'string', // описание 
-    image: 'string', // изображение 
-    title: 'string', // название
-    category: 'онлайн' as TCategory, // категория
-    price: 123 // цена
-        }]
-        this.totalPrice = 0
+    constructor(events: IEvents) {
+        this._items = []
+        this._totalPrice = 0
+        this.events = events;
+        this.order = {
+            address: '',
+            email: '',
+            items: [],
+            payment: 'онлайн',
+            phone: '',
+            total: 0
+        }
     }
     
+    get items() : IProductItem[] {
+        return this._items;
+    }
+    
+    get totalPrice() : number {
+        return this._totalPrice
+    }
     addProduct(product: IProductItem): void {
-        this.items.push(product)
-        this.totalPrice += product.price
-        this.events.on(settings.events.addedToCart)
+        this._items.push(product)
+        this._totalPrice += product.price
+        this.events.emit(settings.events.cartChanged, product)
     }
     removeProduct(productId: string): void {
-        const index = this.items.findIndex(item => item.id === productId);
-        const product = this.items[index]
-        this.totalPrice -= product.price
-        this.items = this.items.filter(product => product.id !== productId);
+        const index = this._items.findIndex(item => item.id === productId);
+        const product = this._items[index]
+        this._totalPrice -= product.price
+        this._items = this._items.filter(product => product.id !== productId);
+        this.events.emit(settings.events.cartChanged, product)
     }
 
     contains(productId: string): boolean {
-        const product = this.items.find((item) => item.id === productId);
+        const product = this._items.find((item) => item.id === productId);
         return product !== undefined;
     }
 

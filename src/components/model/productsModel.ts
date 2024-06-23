@@ -11,22 +11,22 @@ export class ProductsModel implements IProductsModel {
     this._productCards = []
   }
 
-  set productCards(data: IProductItem[]) {
-    this._productCards = data;
-    this.events.emit(settings.events.productsChanged);
-  }
-
   set selectedProduct(item: IProductItem) {
     this._selectedProduct = item;
     this.events.emit(settings.events.selectedProductChanged, item);
   }
 
-  get selectedProduct() {
+  get selectedProduct() : IProductItem {
     return this._selectedProduct;
   }
 
-  get productCards() {
+  get productCards() : IProductItem[] {
     return this._productCards;
+  }
+
+  set productCards(data: IProductItem[]) {
+    this._productCards = data;
+    this.events.emit(settings.events.productsChanged);
   }
 
   setPreview(item: IProductItem) {
