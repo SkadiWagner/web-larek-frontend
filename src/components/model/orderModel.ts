@@ -5,10 +5,8 @@ import {
     IOrder, IOrderDto,
     IOrderModel,
     IProductItem,
-    TCategory,
 } from '../../types';
 import { settings } from "../../utils/constants";
-import { ensureElement } from "../../utils/utils";
 import { IEvents } from "../base/events";
 
 

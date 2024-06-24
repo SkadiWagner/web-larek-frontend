@@ -1,8 +1,8 @@
-import { IAction , IProductItem } from '../../types/index';
+import { IProductItem } from '../../types/index';
 import { Component } from '../base/component';
 import { ensureElement } from '../../utils/utils';
 import { CDN_URL, settings } from '../../utils/constants';
-import { EventEmitter, IEvents } from '../base/events';
+import { IEvents } from '../base/events';
 
 
 export class CardComponent extends Component<IProductItem> {
@@ -98,24 +98,7 @@ export class CardComponent extends Component<IProductItem> {
 		this._category?.classList?.remove('card__category_soft');
 		this._category?.classList?.remove('card__category_other');
 		this._category?.classList?.add(`card__category${this._categoryColor.get(value)}`);
-
-
-		// if(value === 'софт-скилл') {
-		// 	this.toggleClass(this._category, 'card__category_soft', true)
-		// }
-		// if(value === 'другое') {
-		// 	this.toggleClass(this._category, 'card__category_other', true)
-		// }
-
 	}
-
-	// this.setText(this._category, value);
-	// this._category?.classList?.remove('card__category_soft');
-	// this._category?.classList?.remove('card__category_other');
-	// this._category?.classList?.add(
-	// 	`card__category${this._categoryColor.get(value)}`
-	// );
-	// this._category.classList.add(`card__category${categoryClass}`);
 
 	get category() {
 		return this._category.textContent;

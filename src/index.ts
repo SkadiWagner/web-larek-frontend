@@ -83,7 +83,6 @@ events.on(settings.events.modalOpen, (content: HTMLElement) => {
 })
 
 events.on(settings.events.selectedProductChanged, (product: IProductItem) => {
-    console.log(product)
     const card = new CardComponent(cloneTemplate(cardPreviewTemplate), product, events)
     modal.render({content: card.render()})
 })
@@ -96,7 +95,6 @@ events.on(settings.events.cartOpen, (content: HTMLElement) => {
     renderedComponents.forEach((component) => {
         const deleteButton = component.querySelector('.basket__item-delete');
         const componentId = component.dataset.id 
-        console.log(orderModel.items)
         if (deleteButton) {
             deleteButton.addEventListener('click', (item) => {
                 events.on(settings.events.removeProduct, () => {
@@ -203,7 +201,6 @@ events.on(settings.events.orderFinished, () => {
     page.counter = 0;
 })
 
-// events.onAll((event) => console.log(event.eventName))
 events.emit(settings.events.productsChanged)
 
 apiClient.getProducts().then((result) => productModel.productCards = result)

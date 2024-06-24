@@ -1,4 +1,3 @@
-import { Form } from '../common/form';
 import { Component } from '../base/component';
 import { IEvents } from '../base/events';
 import { ensureElement } from '../../utils/utils';
