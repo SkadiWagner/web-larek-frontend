@@ -1,6 +1,6 @@
 import { IApiClient, IOrder, IOrderDto, IProductItem, IProductListDto } from '../../types/index';
 import { API_URL } from '../../utils/constants';
-import { Api } from './api';
+import { Api } from '../base/api';
 
 
 export class ApiClient implements IApiClient {

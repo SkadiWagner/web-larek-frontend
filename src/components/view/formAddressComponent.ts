@@ -40,11 +40,13 @@ export class FormAddressComponent extends Form{
 				value: this.address
 			})
 		})
-		this._submit.addEventListener('click', (evt) => {
-			evt.preventDefault()
-			events.emit(settings.events.addressFormSubmitted)
-		})
-	}
+		this.container.addEventListener('submit', (evt) => {
+            evt.preventDefault();
+            if (this.validate()) {
+                events.emit(settings.events.addressFormSubmitted);
+            }
+        });
+    }
 
 	set address(value: string) {
 		this._addressInput.value = value;
@@ -57,20 +59,28 @@ export class FormAddressComponent extends Form{
 
 	set payment(value: string | null) {
 		if (value === '' || null) {
-			this.toggleClass(this._onlineMethodButton, 'button_alt-active', false);
-			this.toggleClass(this._cashMethodButton, 'button_alt-active', false);
+			this.toggleCard(false)
+			this.toggleCash(false)
 		}
 		if (value === paymentMethods.online) {
-			this.toggleClass(this._onlineMethodButton, 'button_alt-active', true);
-			this.toggleClass(this._cashMethodButton, 'button_alt-active', false);
+			this.toggleCard()
+			this.toggleCash(false)
 		}
 		if (value === paymentMethods.offline) {
-			this.toggleClass(this._onlineMethodButton, 'button_alt-active', false);
-			this.toggleClass(this._cashMethodButton, 'button_alt-active', true);
+			this.toggleCard(false)
+			this.toggleCash()
 		}
 		this._paymentMethod = value;
 		this.validate();
 	}
+
+	toggleCard(state: boolean = true) {
+        this.toggleClass(this._onlineMethodButton, 'button_alt-active', state);
+    }
+
+    toggleCash(state: boolean = true) {
+        this.toggleClass(this._cashMethodButton, 'button_alt-active', state);
+    } 
 
 	validate() {
 		const errors: typeof this._formErrors = {};

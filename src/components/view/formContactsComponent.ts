@@ -23,10 +23,14 @@ export class FormContactsComponent extends Form {
 				value: this.phone
 			})
 		})
-		this._submit.addEventListener('click', (evt) => {
-			evt.preventDefault()
-			events.emit(settings.events.contactsFormSubmitted)
-		})
+
+		this.container.addEventListener('submit', (evt) => {
+            evt.preventDefault();
+            if (this.validate()) {
+                events.emit(settings.events.contactsFormSubmitted)
+            }
+        });	
+
 	}
 	set email(value: string) {
 		this._emailInput.value = value;

@@ -1,5 +1,5 @@
 import './scss/styles.scss';
-import { ApiClient } from './components/base/apiclient'
+import { ApiClient } from './components/model/apiclient'
 import { IFormContactsContent, IFormAddressContent, IProductItem } from './types';
 import { EventEmitter } from './components/base/events';
 import { CardComponent } from './components/view/cardComponent';
@@ -69,10 +69,14 @@ function updateCartComponent() {
 
 events.on(settings.events.cardSelected, async (item: HTMLElement) => {
     if(item.dataset['id'] !== undefined) {
-        const productData = await apiClient.getProduct(item.dataset.id);
-        productModel.selectedProduct =  productData
+        try {
+            const productData = await apiClient.getProduct(item.dataset.id);
+            productModel.selectedProduct = productData;
+        } catch (error) {
+            console.error('Ошибка при получении данных о продукте:', error);
+        }
     }
-})
+});
 
 events.on(settings.events.modalOpen, (content: HTMLElement) => {
    
@@ -179,14 +183,16 @@ events.on(settings.events.contactsErrorsChanged, (errors: Partial<IFormContactsC
       .join('; ')
 })
 
-events.on(settings.events.contactsFormSubmitted,  () => {
-   orderModel.createOrder()
-     .then((res) => {
-         orderModel.successOrder = res;
-         events.emit(settings.events.orderPublished);
-     })
-     .catch((err) => console.error(err));
-})
+events.on(settings.events.contactsFormSubmitted, () => {
+    orderModel.createOrder()
+        .then((res) => {
+            orderModel.successOrder = res;
+            events.emit(settings.events.orderPublished);
+        })
+        .catch((error) => {
+            console.error('Ошибка при создании заказа:', error);
+        });
+});
 
 events.on(settings.events.orderPublished, () => {
     successComponent.total = orderModel.successOrder.total
@@ -207,4 +213,8 @@ events.on(settings.events.orderFinished, () => {
 
 events.emit(settings.events.productsChanged)
 
-apiClient.getProducts().then((result) => productModel.productCards = result)
+apiClient.getProducts()
+    .then((result) => productModel.productCards = result)
+    .catch((error) => {
+        console.error('Ошибка при получении списка продуктов:', error);
+    });

@@ -37,15 +37,7 @@ export class CardComponent extends Component<IProductItem> {
 			})
 		}
 
-		if (productData.price === null) {
-			this.setText(this._price, `Бесценно`)
-			if (this._button) {
-				this.setText(this._button, `Нельзя купить`)
-				this.setDisabled(this._button, true)
-			}
-		} else {
-			this.setText(this._price, `${productData.price} синапсов`);
-		}
+		
 
 		this._category = container.querySelector(`.card__category`);
 		if(this._category !== null) {
@@ -72,9 +64,18 @@ export class CardComponent extends Component<IProductItem> {
 		if(container.querySelector('.card_full .card__button')) {
 			this._button = ensureElement<HTMLButtonElement>('.card__button', container);
 			this. _button.addEventListener('click', () => {
-				console.log("addproduct")
 				events.emit(settings.events.addProduct, productData)
 			})
+		}
+
+		if (productData.price === null) {
+			this.setText(this._price, `Бесценно`)
+			if (this._button) {
+				this.setText(this._button, `Нельзя купить`)
+				this.toggleButton(true)
+			}
+		} else {
+			this.setText(this._price, `${productData.price} синапсов`);
 		}
 	}
 
@@ -97,7 +98,7 @@ export class CardComponent extends Component<IProductItem> {
 			this.setText(this._price, `Бесценно`)
 			if (this._button) {
 				this.setText(this._button, `Нельзя купить`)
-				this.setDisabled(this._button, true)
+				this.toggleButton(true)
 			}
 		} else {
 			this.setText(this._price, `${value} синапсов`);
@@ -141,4 +142,8 @@ export class CardComponent extends Component<IProductItem> {
 	set listingIndex(value: number) {
 		this.setText(this._listIndex, value);
 	}
+
+	toggleButton(state: boolean) {
+        this.setDisabled(this._button, state);
+    } 
 }

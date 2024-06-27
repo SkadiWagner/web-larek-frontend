@@ -39,12 +39,14 @@ export class Modal extends Component<IModalContent> {
 
 
 	open() {
-		this.container.classList.add('modal_active');
+		this._toggleModal();
+		document.addEventListener('keydown', this._handleEscape);
 		this.events.emit(settings.events.modalOpen, this._content);
 	}
 
 	close() {
-		this.container.classList.remove('modal_active');
+		this._toggleModal(false);
+		document.removeEventListener('keydown', this._handleEscape);
 		this.content = null;
 		this.events.emit(settings.events.modalClose);
 	}

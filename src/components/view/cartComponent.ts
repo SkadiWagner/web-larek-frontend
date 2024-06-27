@@ -25,16 +25,20 @@ export class CartComponent extends Component<ICartContent> {
     set cardList(cards: HTMLElement[]){
         this._cardList.replaceChildren(...cards)
         if (cards.length > 0){
-            this.setDisabled(this._submitButton, false)
+            this.toggleButton(false)
         }
         else{
-            this.setDisabled(this._submitButton, true)
+            this.toggleButton(true)
         }
     }
 
     set totalPrice(totalPrice: number){
         this.setText(this._totalPrice, `${totalPrice} синапсов`)
     }
+
+    toggleButton(state: boolean) {
+        this.setDisabled(this._submitButton, state);
+    } 
 }
 
 

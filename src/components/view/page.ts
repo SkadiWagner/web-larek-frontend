@@ -57,6 +57,6 @@ export class PageComponent extends Component<IPageView> {
 	}
 
 	renderHeaderBasketCounter(value: number) {
-        this._counter.textContent = String(value);
+		this.setText(this._counter, String(value))
       }
 }
