@@ -51,10 +51,10 @@ export class OrderModel implements IOrderModel {
     removeProduct(productId: string): void {
         const index = this._items.findIndex(item => item.id === productId);
         const product = this._items[index]
-        this._totalPrice -= product.price
+        console.log(this._items)
         this._items = this._items.filter(product => product.id !== productId);
+        this._totalPrice -= product.price
         this.events.emit(settings.events.cartChanged, product)
-        this.events.emit(settings.events.removeProduct)
     }
 
     contains(productId: string): boolean {

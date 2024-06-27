@@ -27,7 +27,6 @@ const addressFormTemplate = ensureElement<HTMLTemplateElement>('#order');
 const contactsFormTemplate = ensureElement<HTMLTemplateElement>('#contacts');
 const successTemplate = ensureElement<HTMLTemplateElement>('#success');
 
-const cart = new CartComponent(cloneTemplate(cartTemplate), events)
 
 const modalContainer = ensureElement<HTMLElement>('#modal-container')
 
@@ -36,17 +35,11 @@ const modal = new Modal(modalContainer, events)
 
 const productModel = new ProductsModel(events);
 const orderModel = new OrderModel(events, apiClient)
+
+const cart = new CartComponent(cloneTemplate(cartTemplate), events)
 const formAddressComponent = new FormAddressComponent(cloneTemplate(addressFormTemplate), events)
 const formContactsComponent = new FormContactsComponent(cloneTemplate(contactsFormTemplate), events)
 const successComponent = new SuccessComponent(cloneTemplate(successTemplate), events)
-
-// константы модалок
-
-const cardPreviewModal = ensureElement<HTMLElement>(".card_full");
-const basketModal = ensureElement<HTMLElement>('.basket');
-const orderModal = ensureElement<HTMLElement>('.order');
-const orderSucess = ensureElement<HTMLElement>('.order-success');
-
 
 
 
@@ -54,6 +47,25 @@ events.on(settings.events.productsChanged, () => {
      const productsData = productModel.productCards;
      page.productList = productsData.map((product) => new CardComponent(cloneTemplate(cardCatalogTemplate), product, events).render())
 })
+
+events.on(settings.events.cartChanged, () => {
+    page.renderHeaderBasketCounter(orderModel.getCounter())
+    updateCartComponent() 
+    modal.render({content: cart.render()})
+})
+
+function updateCartComponent() {
+    const renderedComponents = orderModel.items.map((product, index) => {
+        const card = new CardComponent(cloneTemplate(cardBasketTemplate), product, events)
+        card.listingIndex = index + 1;
+        return card.render();
+    }
+    );
+
+
+    cart.cardList = renderedComponents;
+    cart.totalPrice = orderModel.totalPrice;
+}
 
 events.on(settings.events.cardSelected, async (item: HTMLElement) => {
     if(item.dataset['id'] !== undefined) {
@@ -63,51 +75,43 @@ events.on(settings.events.cardSelected, async (item: HTMLElement) => {
 })
 
 events.on(settings.events.modalOpen, (content: HTMLElement) => {
-    if(content.querySelector('.card_full')) {
-        const card = ensureElement<HTMLElement>('.card_full', content)
-        const productId = card.dataset.id
-        if(orderModel.contains(productId)) {
-            modal.setDisabled(content.querySelector('.card__button'), true)
-            const cardComponent = new CardComponent(card, productModel.selectedProduct, events);
-            cardComponent.markAsSelected();
-        } else {
-            const button = ensureElement<HTMLButtonElement>('.card__button', content)
-            button.addEventListener('click', () => {
-                const selectedProduct = productModel.selectedProduct;
-                orderModel.addProduct(selectedProduct);
-                page.renderHeaderBasketCounter(orderModel.getCounter())
-                modal.close();
-            }, { once: true})
-        }
-    }
+   
 })
+
+// events.on(settings.events.modalClose, () => {
+//     const selectedProduct = productModel.selectedProduct;
+//     orderModel.addProduct(selectedProduct);
+//     page.renderHeaderBasketCounter(orderModel.getCounter())
+// })
+
+
+
+
 
 events.on(settings.events.selectedProductChanged, (product: IProductItem) => {
     const card = new CardComponent(cloneTemplate(cardPreviewTemplate), product, events)
+        if(orderModel.contains(product.id)) {
+            modal.setDisabled(card._button, true)
+            card.markAsSelected();
+        } 
     modal.render({content: card.render()})
 })
 
+events.on(settings.events.addProduct, () => {
+    const selectedProduct = productModel.selectedProduct;
+    orderModel.addProduct(selectedProduct);
+    page.renderHeaderBasketCounter(orderModel.getCounter())
+    modal.close()
+})
+
+
 events.on(settings.events.cartOpen, (content: HTMLElement) => {
-    const renderedComponents = orderModel.items.map((product) =>
-      new CardComponent(cloneTemplate(cardBasketTemplate), product, events).render()
-    );
-
-    renderedComponents.forEach((component) => {
-        const deleteButton = component.querySelector('.basket__item-delete');
-        const componentId = component.dataset.id 
-        if (deleteButton) {
-            deleteButton.addEventListener('click', (item) => {
-                events.on(settings.events.removeProduct, () => {
-                    orderModel.removeProduct(componentId)
-                })    
-            });
-        }
-    });
-
-    const cart = new CartComponent(cloneTemplate(cartTemplate), events)
-    cart.cardList = renderedComponents;
-    cart.totalPrice = orderModel.totalPrice;
+    updateCartComponent()
     modal.render({content: cart.render()})
+})
+
+events.on(settings.events.removeProduct, (productData: IProductItem) => {
+    orderModel.removeProduct(productData.id)
 })
 
 events.on(settings.events.orderStarted, () => {

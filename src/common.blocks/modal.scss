@@ -4,7 +4,7 @@
 .modal {
   @include mixins.sublayer;
   height: max-content;
-  position: absolute;
+  position: fixed;
   display: none;
   justify-content: center;
   background-color: $overlayBackground;
@@ -14,6 +14,9 @@
 
   &_active {
     display: flex;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
   }
 
   &__container {

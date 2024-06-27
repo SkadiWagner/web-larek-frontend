@@ -23,8 +23,8 @@ export class CartComponent extends Component<ICartContent> {
     }
 
     set cardList(cards: HTMLElement[]){
+        this._cardList.replaceChildren(...cards)
         if (cards.length > 0){
-            this._cardList.replaceChildren(...cards)
             this.setDisabled(this._submitButton, false)
         }
         else{

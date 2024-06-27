@@ -11,8 +11,10 @@ export class CardComponent extends Component<IProductItem> {
 	protected _title: HTMLElement;
     protected _category?: HTMLElement;
 	protected _price: HTMLElement;
+	protected _listIndex?: HTMLSpanElement;
 
     _button: HTMLButtonElement;
+	_deleteButton: HTMLButtonElement;
 
 	protected _categoryColor = new Map<string, string>([
 		['софт-скил', '_soft'],
@@ -28,7 +30,13 @@ export class CardComponent extends Component<IProductItem> {
 		this._title = ensureElement<HTMLElement>('.card__title', container);
 		this.setText(this._title, productData.title)
 		this._price = ensureElement<HTMLElement>('.card__price', container);
-		this._button = container.querySelector(`.card__button`);
+		if(container.querySelector('.basket__item-delete')) {
+			this._deleteButton = ensureElement<HTMLButtonElement>('.basket__item-delete', container)
+			this._deleteButton.addEventListener('click', () => {
+				events.emit(settings.events.removeProduct, productData)
+			})
+		}
+
 		if (productData.price === null) {
 			this.setText(this._price, `Бесценно`)
 			if (this._button) {
@@ -54,6 +62,20 @@ export class CardComponent extends Component<IProductItem> {
 			this.setText(this._description, productData.description)
 		}
 
+		if (container.querySelector(`.basket__item-index`) !== null) {
+			this._listIndex = ensureElement<HTMLSpanElement>(
+				`.basket__item-index`,
+				container
+			);
+		}
+
+		if(container.querySelector('.card_full .card__button')) {
+			this._button = ensureElement<HTMLButtonElement>('.card__button', container);
+			this. _button.addEventListener('click', () => {
+				console.log("addproduct")
+				events.emit(settings.events.addProduct, productData)
+			})
+		}
 	}
 
 	set id(value: string) {
@@ -116,4 +138,7 @@ export class CardComponent extends Component<IProductItem> {
 		return this.button
 	}
 
+	set listingIndex(value: number) {
+		this.setText(this._listIndex, value);
+	}
 }

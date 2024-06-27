@@ -8,6 +8,7 @@ export class Modal extends Component<IModalContent> {
 	closeButton: HTMLButtonElement;
 	_content: HTMLElement;
 
+
 	constructor(container: HTMLElement, protected events: IEvents) {
 		super(container);
 
@@ -16,15 +17,26 @@ export class Modal extends Component<IModalContent> {
 			container
 		);
 		this._content = ensureElement<HTMLElement>('.modal__content', container);
-
 		this.closeButton.addEventListener('click', this.close.bind(this));
 		this.container.addEventListener('click', this.close.bind(this));
 		this._content.addEventListener('click', (event) => event.stopPropagation());
+
 	}
 
 	set content(value: HTMLElement) {
 		this._content.replaceChildren(value);
 	}
+
+	_toggleModal(state: boolean = true) {
+        this.toggleClass(this.container, 'modal_active', state);
+    }
+
+	_handleEscape = (evt: KeyboardEvent) => {
+        if (evt.key === 'Escape') {
+            this.close();
+        }
+    };
+
 
 	open() {
 		this.container.classList.add('modal_active');
