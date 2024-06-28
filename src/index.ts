@@ -82,16 +82,6 @@ events.on(settings.events.modalOpen, (content: HTMLElement) => {
    
 })
 
-// events.on(settings.events.modalClose, () => {
-//     const selectedProduct = productModel.selectedProduct;
-//     orderModel.addProduct(selectedProduct);
-//     page.renderHeaderBasketCounter(orderModel.getCounter())
-// })
-
-
-
-
-
 events.on(settings.events.selectedProductChanged, (product: IProductItem) => {
     const card = new CardComponent(cloneTemplate(cardPreviewTemplate), product, events)
         if(orderModel.contains(product.id)) {

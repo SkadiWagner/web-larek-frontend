@@ -98,8 +98,8 @@ export class FormAddressComponent extends Form{
 
 	reset() {
 		this.payment = null;
-		this.toggleClass(this._onlineMethodButton, 'button_alt-active', false);
-		this.toggleClass(this._cashMethodButton, 'button_alt-active', false);
+		this.toggleCash(false)
+        this.toggleCard(false)
 		this.address = null;
 	}
 }

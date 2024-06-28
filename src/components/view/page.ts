@@ -50,9 +50,9 @@ export class PageComponent extends Component<IPageView> {
 
 	set locked(value: boolean) {
 		if (value === true) {
-			this._pageWrapper.classList.add('page__wrapper_locked');
+			this.toggleClass(this._pageWrapper, 'page__wrapper_locked', true)
 		} else {
-			this._pageWrapper.classList.remove('page__wrapper_locked');
+			this.toggleClass(this._pageWrapper, 'page__wrapper_locked', false)
 		}
 	}
 
